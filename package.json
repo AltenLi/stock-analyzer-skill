@@ -1,6 +1,6 @@
 {
   "name": "@altenli/stock-analyzer-skill",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI编程助手 Skill - 股票综合分析工具，从东方财富获取数据进行基本面、新闻面、资金面三维分析",
   "keywords": [
     "ai-assistant",
