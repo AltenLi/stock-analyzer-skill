@@ -669,6 +669,79 @@
             </div>
         </div>
         
+        <!-- 数据来源状态 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-blue">📡</div>
+                <h2>数据来源状态</h2>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 12px 16px; background: var(--bg-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600;">📊 数据完整度</span>
+                <span style="font-size: 18px; font-weight: bold; color: var(--primary-color);">{数据完整度}%</span>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>数据项</th>
+                        <th>来源</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>当前股价</td>
+                        <td>{股价来源}</td>
+                        <td><span class="status {股价状态样式}">{股价状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>涨跌幅</td>
+                        <td>{涨跌幅来源}</td>
+                        <td><span class="status {涨跌幅状态样式}">{涨跌幅状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>总市值</td>
+                        <td>{市值来源}</td>
+                        <td><span class="status {市值状态样式}">{市值状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>PE/PB估值</td>
+                        <td>{估值来源}</td>
+                        <td><span class="status {估值状态样式}">{估值状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>主力资金流向</td>
+                        <td>{资金流向来源}</td>
+                        <td><span class="status {资金流向状态样式}">{资金流向状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>财报数据</td>
+                        <td>{财报来源}</td>
+                        <td><span class="status {财报状态样式}">{财报状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>新闻公告</td>
+                        <td>{新闻来源}</td>
+                        <td><span class="status {新闻状态样式}">{新闻状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>分析师评级</td>
+                        <td>{评级来源}</td>
+                        <td><span class="status {评级状态样式}">{评级状态}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 15px; padding: 12px; background: #e8f0fe; border-radius: 8px; font-size: 13px; color: var(--text-secondary);">
+                <strong>状态说明：</strong>
+                <span class="status status-success" style="margin-left: 10px;">✅ 东财</span> 从东方财富网获取
+                <span class="status status-info" style="margin-left: 10px;">🔄 搜索</span> 通过搜索引擎补充
+                <span class="status status-danger" style="margin-left: 10px;">❌ 失败</span> 获取失败
+                <span class="status status-warning" style="margin-left: 10px;">⚪ 未获取</span> 未尝试获取
+            </div>
+        </div>
+        
         <!-- 页脚 -->
         <div class="footer">
             <p>报告生成时间：{生成时间}</p>
