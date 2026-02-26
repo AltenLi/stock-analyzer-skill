@@ -19,6 +19,7 @@ yarn-error.log*
 # Temporary files
 *.tmp
 *.temp
+*.html
 
 # Package files (for local development)
 *.tgz
