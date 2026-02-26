@@ -92,7 +92,7 @@ function performInstall(sourceDir, targetDir, cwd) {
     log('\n✅ 安装成功！\n', 'green');
     log(`📍 安装位置: ${targetDir}`, 'cyan');
     log('\n📖 使用方法:', 'yellow');
-    log('   在CodeBuddy中输入以下关键词即可触发:', 'reset');
+    log('   在AI编程助手中输入以下关键词即可触发:', 'reset');
     log('   - "分析股票 [股票名称]"', 'reset');
     log('   - "帮我分析一下 [股票名称]"', 'reset');
     log('   - "股票推荐"、"股票买卖点"\n', 'reset');
@@ -119,7 +119,7 @@ const args = process.argv.slice(2);
 if (args.includes('--help') || args.includes('-h')) {
   log('\n📊 Stock Analyzer Skill', 'cyan');
   log('========================\n', 'cyan');
-  log('用法: npx @altenli/stock-analyzer-skill [选项]\n', 'reset');
+  log('用法: npx github:AltenLi/stock-analyzer-skill [选项]\n', 'reset');
   log('选项:', 'yellow');
   log('  --help, -h     显示帮助信息', 'reset');
   log('  --version, -v  显示版本号\n', 'reset');

@@ -1,19 +1,22 @@
 # Stock Analyzer Skill
 
-📊 股票综合分析工具 - CodeBuddy Skill
+📊 股票综合分析工具 - AI编程助手 Skill
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![npm version](https://img.shields.io/npm/v/@altenli/stock-analyzer-skill.svg)](https://www.npmjs.com/package/@altenli/stock-analyzer-skill)
 
 ## 功能介绍
 
 根据用户输入的股票名称，从东方财富网获取股票信息，进行**基本面、新闻面、资金面**三维分析，给出投资建议、买入价位和卖出价位。
 
+## 兼容性
+
+本Skill兼容所有支持 `.codebuddy/skills/` 目录结构的AI编程助手工具。
+
 ## 安装
 
 ### 方式一：从GitHub安装（推荐）
 
-在你的CodeBuddy项目目录下运行：
+在你的项目目录下运行：
 
 ```bash
 npx github:AltenLi/stock-analyzer-skill
