@@ -169,51 +169,102 @@ https://so.eastmoney.com/Web/s?keyword={股票名称或代码}
 |------|---------|---------|-----------|
 | 🇨🇳 A股 | 贵州茅台 | `keyword=贵州茅台` | `quote.eastmoney.com/sh600519.html` |
 | 🇨🇳 A股 | 宁德时代 | `keyword=宁德时代` | `quote.eastmoney.com/sz300750.html` |
-| 🇭🇰 港股 | 腾讯 | `keyword=腾讯` | `quote.eastmoney.com/unify/r/116.00700` |
-| 🇺🇸 美股 | 苹果/AAPL | `keyword=AAPL` | `quote.eastmoney.com/unify/r/105.AAPL` |
-| 🇺🇸 美股 | 美光/MU | `keyword=MU` | `quote.eastmoney.com/unify/r/105.MU` |
-| 🇺🇸 美股 | 阿里巴巴 | `keyword=阿里巴巴` | `quote.eastmoney.com/unify/r/106.BABA` |
+| 🇭🇰 港股 | 腾讯 | `keyword=腾讯` | `quote.eastmoney.com/hk/00700.html` |
+| 🇺🇸 美股 | 苹果/AAPL | `keyword=AAPL` | `quote.eastmoney.com/us/AAPL.html` |
+| 🇺🇸 美股 | 美光/MU | `keyword=MU` | `quote.eastmoney.com/us/MU.html` |
+| 🇺🇸 美股 | 阿里巴巴 | `keyword=阿里巴巴` | `quote.eastmoney.com/us/BABA.html` |
 
 ### Step 2: 访问股票详情页获取基本信息（核心步骤！）
 
 > ⚠️ **重要**：当前价格、涨跌幅等实时行情数据**必须优先从东方财富网获取**！这是最权威的数据源。
 
-根据Step 1获取的股票详情页URL，使用 `web_fetch` 访问页面获取：
+根据Step 1获取的股票详情页URL，获取实时行情数据。
+
+#### 🚀 推荐方式：使用 Selenium 脚本（可获取动态数据）
+
+由于东方财富页面数据通过 JavaScript 动态加载，推荐使用项目自带的 Selenium 脚本获取数据：
+
+```bash
+# 港股示例
+python bin/fetch_stock.py 00700 --market hk --output json
+
+# 美股示例  
+python bin/fetch_stock.py MU --market us --output json
+
+# A股示例
+python bin/fetch_stock.py 600519 --market sh --output json
+```
+
+**脚本输出 JSON 格式：**
+```json
+{
+  "success": true,
+  "code": "00700",
+  "market": "HK",
+  "data": {
+    "name": "腾讯控股",
+    "price": "512.000",
+    "change": "-10.500",
+    "change_percent": "-2.01%",
+    "amount": "132.2亿",
+    "market_cap": "4.662万亿",
+    "pe": "25.67",
+    "pb": "19.95",
+    "turnover": "0.88%"
+  },
+  "source": "东方财富"
+}
+```
+
+**脚本参数说明：**
+| 参数 | 说明 | 示例 |
+|------|------|------|
+| `code` | 股票代码 | `00700`, `MU`, `600519` |
+| `--market` / `-m` | 市场类型 | `hk`, `us`, `sh`, `sz`, `bj`, `auto` |
+| `--output` / `-o` | 输出格式 | `json`, `text` |
+| `--timeout` / `-t` | 超时时间(秒) | `15` |
+
+#### 备选方式：使用 web_fetch（可能无法获取动态数据）
+
+如果 Selenium 脚本不可用，可使用 `web_fetch` 访问页面，但注意：
+- 页面数据通过 JS 动态加载，`web_fetch` 只能获取静态 HTML
+- 港股/美股页面可能显示 "-" 或空值
+- 需要结合 `web_search` 补充数据
 
 **必须从东方财富获取的数据（优先级最高）**：
 
 | 数据项 | 重要性 | 获取方式 | 备注 |
 |--------|--------|----------|------|
-| ⭐ **当前股价** | 🔴 核心 | 东方财富详情页 | 必须获取，失败需标注 |
-| ⭐ **涨跌幅** | 🔴 核心 | 东方财富详情页 | 必须获取，失败需标注 |
-| ⭐ **涨跌额** | 🔴 核心 | 东方财富详情页 | 必须获取，失败需标注 |
-| 成交量 | 中 | 东方财富详情页 | - |
-| 成交额 | 中 | 东方财富详情页 | - |
-| 最高价、最低价 | 中 | 东方财富详情页 | - |
-| 开盘价 | 中 | 东方财富详情页 | - |
-| 换手率、量比、振幅 | 中 | 东方财富详情页 | - |
-| 总市值、流通市值 | 中 | 东方财富详情页 | - |
-| PE、PB | 中 | 东方财富详情页 | - |
+| ⭐ **当前股价** | 🔴 核心 | Selenium脚本 / 东方财富详情页 | 必须获取，失败需标注 |
+| ⭐ **涨跌幅** | 🔴 核心 | Selenium脚本 / 东方财富详情页 | 必须获取，失败需标注 |
+| ⭐ **涨跌额** | 🔴 核心 | Selenium脚本 / 东方财富详情页 | 必须获取，失败需标注 |
+| 成交量 | 中 | Selenium脚本 / 东方财富详情页 | - |
+| 成交额 | 中 | Selenium脚本 / 东方财富详情页 | - |
+| 最高价、最低价 | 中 | Selenium脚本 / 东方财富详情页 | - |
+| 开盘价 | 中 | Selenium脚本 / 东方财富详情页 | - |
+| 换手率、量比、振幅 | 中 | Selenium脚本 / 东方财富详情页 | - |
+| 总市值、流通市值 | 中 | Selenium脚本 / 东方财富详情页 | - |
+| PE、PB | 中 | Selenium脚本 / 东方财富详情页 | - |
 
 **各市场详情页URL模板**：
 
 | 市场 | URL格式 | 示例 |
 |------|---------|------|
-| A股-沪市 | `https://quote.eastmoney.com/sh{代码}.html` | `sh600519` |
-| A股-深市 | `https://quote.eastmoney.com/sz{代码}.html` | `sz300750` |
-| A股-北交所 | `https://quote.eastmoney.com/bj{代码}.html` | `bj830799` |
-| 港股 | `https://quote.eastmoney.com/unify/r/116.{代码}` | `116.00700` |
-| 美股-纳斯达克 | `https://quote.eastmoney.com/unify/r/105.{代码}` | `105.AAPL` |
-| 美股-纽交所 | `https://quote.eastmoney.com/unify/r/106.{代码}` | `106.BABA` |
+| A股-沪市 | `https://quote.eastmoney.com/sh{代码}.html` | `sh600519.html` |
+| A股-深市 | `https://quote.eastmoney.com/sz{代码}.html` | `sz300750.html` |
+| A股-北交所 | `https://quote.eastmoney.com/bj{代码}.html` | `bj830799.html` |
+| 🇭🇰 **港股** | `https://quote.eastmoney.com/hk/{代码}.html` | `hk/00700.html` |
+| 🇺🇸 **美股** | `https://quote.eastmoney.com/us/{代码}.html` | `us/MU.html`, `us/AAPL.html` |
 
-> ⚠️ **注意**：港股和美股使用 `unify/r/` 路径，与A股URL格式不同！
+> ⚠️ **重要**：港股使用 `/hk/` 路径，美股使用 `/us/` 路径！旧版 `unify/r/116.` 和 `unify/r/105.` 路径已失效或不稳定！
 
 **数据获取失败处理**：
 
 如果东方财富页面访问失败或数据获取不完整：
-1. 尝试重试一次（等待2秒后）
-2. 使用 `web_search` 搜索"{股票名称} 实时股价 今日行情"作为备选
-3. **必须在最终报告中标注数据来源状态**（详见数据来源追踪章节）
+1. 优先尝试使用 Selenium 脚本：`python bin/fetch_stock.py {代码} -m {市场}`
+2. 尝试重试一次（等待2秒后）
+3. 使用 `web_search` 搜索"{股票名称} 实时股价 今日行情"作为备选
+4. **必须在最终报告中标注数据来源状态**（详见数据来源追踪章节）
 
 ### Step 3: 获取基本面数据
 
@@ -560,18 +611,19 @@ https://data.eastmoney.com/rzrq/detail/{股票代码}.html
 7. **数据来源标注**：必须在报告中显示数据来源状态表格，让用户清楚了解数据可靠性
 7. **市场代码对照表**：
 
-| 市场 | 代码前缀 | URL路径 | 示例 |
-|------|---------|---------|------|
-| 🇨🇳 A股-沪市 | `sh` | `sh{代码}` | sh600519 |
-| 🇨🇳 A股-深市 | `sz` | `sz{代码}` | sz300750 |
-| 🇨🇳 A股-北交所 | `bj` | `bj{代码}` | bj830799 |
-| 🇭🇰 港股 | `116.` | `unify/r/116.{代码}` | 116.00700 |
-| 🇺🇸 美股-纳斯达克 | `105.` | `unify/r/105.{代码}` | 105.AAPL, 105.MU |
-| 🇺🇸 美股-纽交所 | `106.` | `unify/r/106.{代码}` | 106.BABA |
-| 🇺🇸 美股-AMEX | `107.` | `unify/r/107.{代码}` | 107.XXX |
+| 市场 | URL路径格式 | 示例URL |
+|------|------------|---------|
+| 🇨🇳 A股-沪市 | `quote.eastmoney.com/sh{代码}.html` | `sh600519.html` |
+| 🇨🇳 A股-深市 | `quote.eastmoney.com/sz{代码}.html` | `sz300750.html` |
+| 🇨🇳 A股-北交所 | `quote.eastmoney.com/bj{代码}.html` | `bj830799.html` |
+| 🇭🇰 **港股** | `quote.eastmoney.com/hk/{代码}.html` | `hk/00700.html` |
+| 🇺🇸 **美股** | `quote.eastmoney.com/us/{代码}.html` | `us/MU.html`, `us/AAPL.html` |
+
+> ⚠️ **重要**：旧版 `unify/r/116.` (港股) 和 `unify/r/105.` (美股) 路径已失效！请使用新版 `/hk/` 和 `/us/` 路径！
 
 8. **港美股特殊说明**：
-   - 港股和美股使用 `quote.eastmoney.com/unify/r/` 路径
+   - **港股**使用 `quote.eastmoney.com/hk/{代码}.html` 路径
+   - **美股**使用 `quote.eastmoney.com/us/{代码}.html` 路径
    - 港美股可能没有完整的F10资料页，需使用 `web_search` 补充基本面数据
    - 港美股资金流向数据可能与A股格式不同，需灵活处理
    - 美股代码为英文字母（如 AAPL、MU、TSLA），港股为数字（如 00700）
