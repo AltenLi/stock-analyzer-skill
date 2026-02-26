@@ -1,0 +1,37 @@
+{
+  "name": "@altenli/stock-analyzer-skill",
+  "version": "1.0.0",
+  "description": "CodeBuddy Skill - 股票综合分析工具，从东方财富获取数据进行基本面、新闻面、资金面三维分析",
+  "keywords": [
+    "codebuddy",
+    "skill",
+    "stock",
+    "analyzer",
+    "eastmoney",
+    "investment",
+    "A股",
+    "股票分析"
+  ],
+  "author": "AltenLi",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AltenLi/stock-analyzer-skill.git"
+  },
+  "homepage": "https://github.com/AltenLi/stock-analyzer-skill#readme",
+  "bugs": {
+    "url": "https://github.com/AltenLi/stock-analyzer-skill/issues"
+  },
+  "bin": {
+    "stock-analyzer-skill": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "skill/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

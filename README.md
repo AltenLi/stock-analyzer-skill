@@ -2,9 +2,41 @@
 
 📊 股票综合分析工具 - CodeBuddy Skill
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![npm version](https://img.shields.io/npm/v/@altenli/stock-analyzer-skill.svg)](https://www.npmjs.com/package/@altenli/stock-analyzer-skill)
+
 ## 功能介绍
 
 根据用户输入的股票名称，从东方财富网获取股票信息，进行**基本面、新闻面、资金面**三维分析，给出投资建议、买入价位和卖出价位。
+
+## 安装
+
+### 方式一：使用 npx（推荐）
+
+在你的CodeBuddy项目目录下运行：
+
+```bash
+npx @altenli/stock-analyzer-skill
+```
+
+### 方式二：全局安装
+
+```bash
+npm install -g @altenli/stock-analyzer-skill
+stock-analyzer-skill
+```
+
+### 方式三：手动安装
+
+1. 克隆仓库：
+```bash
+git clone https://github.com/AltenLi/stock-analyzer-skill.git
+```
+
+2. 将 `skill/` 目录复制到你的项目：
+```bash
+cp -r stock-analyzer-skill/skill/ your-project/.codebuddy/skills/stock-analyzer/
+```
 
 ## 特性
 
@@ -16,16 +48,7 @@
   - 技术面（10%）：均线、支撑压力位
 - 💰 **投资建议**：综合评分 + 买入/卖出价位建议
 - 📄 **双重输出**：Markdown报告 + 可视化HTML网页
-
-## 安装使用
-
-### 方式一：直接使用Skill文件夹
-
-将 `.codebuddy/skills/stock-analyzer/` 文件夹复制到你的CodeBuddy项目中。
-
-### 方式二：使用打包文件
-
-解压 `stock-analyzer.zip` 到 `.codebuddy/skills/` 目录下。
+- ⏱️ **防限流**：每次请求延迟1秒，避免被东方财富限流
 
 ## 触发关键词
 
@@ -61,16 +84,22 @@ Skill会自动：
 | -5%-0% | 🟢 小幅流出 |
 | < -5% | ⚫ 明显流出 |
 
-## 文件结构
+## 目录结构
 
 ```
-.codebuddy/skills/stock-analyzer/
-├── SKILL.md                      # 主skill定义
-├── references/
-│   └── eastmoney_guide.md        # 东方财富数据获取指南
-└── assets/
-    ├── report_template.md        # Markdown报告模板
-    └── report_template.html      # HTML可视化报告模板
+stock-analyzer-skill/
+├── package.json              # npm包配置
+├── bin/
+│   └── install.js            # 安装脚本
+├── skill/                    # Skill源文件
+│   ├── SKILL.md              # 主skill定义
+│   ├── references/
+│   │   └── eastmoney_guide.md
+│   └── assets/
+│       ├── report_template.md
+│       └── report_template.html
+├── README.md
+└── LICENSE
 ```
 
 ## 注意事项
