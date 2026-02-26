@@ -11,18 +11,24 @@
 
 ## 安装
 
-### 方式一：使用 npx（推荐）
+### 方式一：从GitHub安装（推荐）
 
 在你的CodeBuddy项目目录下运行：
 
 ```bash
-npx @altenli/stock-analyzer-skill
+npx github:AltenLi/stock-analyzer-skill
+```
+
+或者使用完整URL：
+
+```bash
+npx https://github.com/AltenLi/stock-analyzer-skill.git
 ```
 
 ### 方式二：全局安装
 
 ```bash
-npm install -g @altenli/stock-analyzer-skill
+npm install -g github:AltenLi/stock-analyzer-skill
 stock-analyzer-skill
 ```
 
