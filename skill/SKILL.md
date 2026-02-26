@@ -182,17 +182,17 @@ https://so.eastmoney.com/Web/s?keyword={股票名称或代码}
 
 #### 🚀 推荐方式：使用 Selenium 脚本（可获取动态数据）
 
-由于东方财富页面数据通过 JavaScript 动态加载，推荐使用项目自带的 Selenium 脚本获取数据：
+由于东方财富页面数据通过 JavaScript 动态加载，推荐使用 skill 自带的 Selenium 脚本获取数据：
 
 ```bash
 # 港股示例
-python bin/fetch_stock.py 00700 --market hk --output json
+python scripts/fetch_stock.py 00700 --market hk --output json
 
 # 美股示例  
-python bin/fetch_stock.py MU --market us --output json
+python scripts/fetch_stock.py MU --market us --output json
 
 # A股示例
-python bin/fetch_stock.py 600519 --market sh --output json
+python scripts/fetch_stock.py 600519 --market sh --output json
 ```
 
 **脚本输出 JSON 格式：**
@@ -261,7 +261,7 @@ python bin/fetch_stock.py 600519 --market sh --output json
 **数据获取失败处理**：
 
 如果东方财富页面访问失败或数据获取不完整：
-1. 优先尝试使用 Selenium 脚本：`python bin/fetch_stock.py {代码} -m {市场}`
+1. 优先尝试使用 Selenium 脚本：`python scripts/fetch_stock.py {代码} -m {市场}`
 2. 尝试重试一次（等待2秒后）
 3. 使用 `web_search` 搜索"{股票名称} 实时股价 今日行情"作为备选
 4. **必须在最终报告中标注数据来源状态**（详见数据来源追踪章节）

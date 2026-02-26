@@ -100,16 +100,27 @@ stock-analyzer-skill/
 ├── package.json              # npm包配置
 ├── bin/
 │   └── install.js            # 安装脚本
-├── skill/                    # Skill源文件
-│   ├── SKILL.md              # 主skill定义
-│   ├── references/
+├── skill/                    # Skill源文件（标准结构）
+│   ├── SKILL.md              # 主skill定义（必需）
+│   ├── scripts/              # 可执行脚本
+│   │   ├── fetch_stock.py    # Selenium股票数据抓取工具
+│   │   └── requirements.txt  # Python依赖
+│   ├── references/           # 参考文档
 │   │   └── eastmoney_guide.md
-│   └── assets/
+│   └── assets/               # 输出资源（模板等）
 │       ├── report_template.md
 │       └── report_template.html
 ├── README.md
 └── LICENSE
 ```
+
+### Skill 标准目录说明
+
+| 目录 | 用途 | 说明 |
+|------|------|------|
+| `scripts/` | 可执行脚本 | 需要确定性执行的代码，如数据抓取 |
+| `references/` | 参考文档 | Claude 按需加载的详细文档 |
+| `assets/` | 输出资源 | 模板、图片等用于生成输出的文件 |
 
 ## 注意事项
 
