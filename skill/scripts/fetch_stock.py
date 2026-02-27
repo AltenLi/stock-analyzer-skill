@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-东方财富股票数据抓取工具 v2.0
-使用 Selenium + Chrome 获取动态加载的股票数据
+东方财富股票数据抓取工具 v3.0
+使用东方财富 API 获取实时股票数据（无需 Selenium）
 
 支持市场：
 - A股：sh600519, sz300750, bj830799
@@ -15,6 +15,7 @@
     python fetch_stock.py 00700 --market hk
     python fetch_stock.py MU --market us
     python fetch_stock.py 600519 --market sh
+    python fetch_stock.py 华丰科技 --market auto
 """
 
 import argparse
@@ -22,256 +23,359 @@ import json
 import sys
 import time
 import re
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 try:
-    from selenium import webdriver
-    from selenium.webdriver.chrome.service import Service
-    from selenium.webdriver.chrome.options import Options
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support.ui import WebDriverWait
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.common.exceptions import TimeoutException, WebDriverException
+    import requests
+    USE_REQUESTS = True
 except ImportError:
-    print("错误：需要安装 selenium 库")
-    print("请运行：pip install selenium")
-    sys.exit(1)
+    import urllib.request
+    import urllib.parse
+    USE_REQUESTS = False
 
-try:
-    from webdriver_manager.chrome import ChromeDriverManager
-    USE_WEBDRIVER_MANAGER = True
-except ImportError:
-    USE_WEBDRIVER_MANAGER = False
+# 东方财富 API 基础 URL
+BASE_API = "https://push2.eastmoney.com/api/qt/stock/get"
+
+# 字段映射说明
+# f43: 最新价(分) f44: 最高(分) f45: 最低(分) f46: 今开(分)
+# f47: 成交量(手) f48: 成交额 f49: 外盘 f50: 量比
+# f51: 涨停价(分) f52: 跌停价(分) f55: 收益 f57: 股票代码
+# f58: 股票名称 f60: 昨收(分) f116: 总市值 f117: 流通市值
+# f162: 市盈率(动) f163: 市盈率(TTM) f167: 市净率
+# f168: 换手率 f169: 涨跌额(分) f170: 涨跌幅(0.01%)
 
 
-def get_stock_url(code: str, market: str) -> str:
-    """根据市场类型生成东方财富URL"""
-    base_url = "https://quote.eastmoney.com"
-    
+def get_secid(code: str, market: str) -> str:
+    """
+    根据市场类型生成 secid
+    A股沪市: 1.代码  A股深市: 0.代码  港股: 116.代码  美股: 105.代码
+    """
     market = market.lower()
+    code = code.upper()
     
     if market == 'hk':
-        return f"{base_url}/hk/{code}.html"
+        return f"116.{code}"
     elif market == 'us':
-        return f"{base_url}/us/{code.upper()}.html"
-    elif market in ['sh', 'sz', 'bj']:
-        return f"{base_url}/{market}{code}.html"
+        return f"105.{code}"
+    elif market == 'sh':
+        return f"1.{code}"
+    elif market == 'sz':
+        return f"0.{code}"
+    elif market == 'bj':
+        return f"0.{code}"
     elif market == 'auto':
         # 自动识别
         if code.isdigit():
             if code.startswith('6'):
-                return f"{base_url}/sh{code}.html"
+                return f"1.{code}"  # 沪市
             elif code.startswith(('0', '3')):
-                return f"{base_url}/sz{code}.html"
+                return f"0.{code}"  # 深市
             elif code.startswith(('8', '4')):
-                return f"{base_url}/bj{code}.html"
+                return f"0.{code}"  # 北交所
             elif len(code) == 5:
-                return f"{base_url}/hk/{code}.html"
+                return f"116.{code}"  # 港股
         else:
-            return f"{base_url}/us/{code.upper()}.html"
+            return f"105.{code}"  # 美股
     
     raise ValueError(f"无法识别的市场类型: {market}")
 
 
-def create_driver(headless: bool = True) -> webdriver.Chrome:
-    """创建 Chrome WebDriver"""
-    options = Options()
-    
-    if headless:
-        options.add_argument('--headless')
-    
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920,1080')
-    options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-    
-    prefs = {
-        'profile.managed_default_content_settings.images': 2,
-        'profile.default_content_setting_values.notifications': 2
-    }
-    options.add_experimental_option('prefs', prefs)
-    
+def search_stock_code(name: str) -> Optional[Dict[str, str]]:
+    """
+    通过股票名称搜索股票代码
+    """
     try:
-        if USE_WEBDRIVER_MANAGER:
-            service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(service=service, options=options)
+        # 东方财富搜索 API
+        search_url = "https://searchadapter.eastmoney.com/api/suggest/get"
+        params = {
+            "input": name,
+            "type": "14",
+            "token": "D43BF722C8E33BDC906FB84D85E326E8",
+            "count": "5"
+        }
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+            'Referer': 'https://quote.eastmoney.com/',
+            'Accept': 'application/json'
+        }
+        
+        if USE_REQUESTS:
+            response = requests.get(search_url, params=params, headers=headers, timeout=15)
+            data = response.json()
         else:
-            driver = webdriver.Chrome(options=options)
-        return driver
-    except WebDriverException as e:
-        print(f"错误：无法启动 Chrome WebDriver: {e}", file=sys.stderr)
-        print("请确保已安装 Chrome 浏览器", file=sys.stderr)
-        print("运行：pip install webdriver-manager", file=sys.stderr)
-        sys.exit(1)
+            url = f"{search_url}?{urllib.parse.urlencode(params)}"
+            req = urllib.request.Request(url)
+            for k, v in headers.items():
+                req.add_header(k, v)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+        
+        if data.get('QuotationCodeTable', {}).get('Data'):
+            first = data['QuotationCodeTable']['Data'][0]
+            code = first.get('Code', '')
+            name = first.get('Name', '')
+            market_id = first.get('MktNum', '')
+            
+            # 根据市场类型确定市场代码
+            if market_id == '1':
+                market = 'sh'
+            elif market_id == '0':
+                market = 'sz'
+            elif market_id == '116':
+                market = 'hk'
+            elif market_id == '105':
+                market = 'us'
+            else:
+                market = 'auto'
+            
+            return {
+                'code': code,
+                'name': name,
+                'market': market,
+                'secid': f"{market_id}.{code}"
+            }
+    except Exception as e:
+        print(f"搜索股票代码失败: {e}", file=sys.stderr)
+    
+    return None
 
 
-def extract_price_data(driver: webdriver.Chrome) -> Dict[str, str]:
+def fetch_stock_data(code: str, market: str, retry: int = 3) -> Dict[str, Any]:
     """
-    从东方财富页面提取股票数据
-    页面使用 price_down/price_up/price_draw + blinkgreen/blinkred/blinkblue 类名
+    通过东方财富 API 获取股票实时数据
     """
-    data = {}
-    
-    # 获取所有带有 blink 类的 span 元素（这些是主要数据区域）
-    blink_elements = driver.find_elements(
-        By.CSS_SELECTOR, 
-        "span.blinkgreen, span.blinkred, span.blinkblue"
-    )
-    
-    # 按顺序排列的数据通常是：价格、涨跌额、涨跌幅、买入价、卖出价、最高、昨收、最低、成交额、换手率...
-    blink_texts = []
-    for el in blink_elements:
-        text = el.text.strip()
-        if text and text != "-" and text != "--":
-            blink_texts.append(text)
-    
-    # 尝试识别数据
-    if len(blink_texts) >= 1:
-        # 第一个数字通常是当前价格
-        data['price'] = blink_texts[0]
-    
-    if len(blink_texts) >= 2:
-        # 第二个是涨跌额
-        data['change'] = blink_texts[1]
-    
-    if len(blink_texts) >= 3:
-        # 第三个是涨跌幅
-        data['change_percent'] = blink_texts[2]
-    
-    # 查找更多数据：遍历所有 price_draw 元素
-    draw_elements = driver.find_elements(By.CSS_SELECTOR, "span.price_draw")
-    draw_texts = []
-    for el in draw_elements:
-        text = el.text.strip()
-        if text and text != "-":
-            draw_texts.append(text)
-    
-    # 从所有数据中识别特定字段
-    all_texts = blink_texts + draw_texts
-    
-    for text in all_texts:
-        # 识别市值（包含"万亿"或"亿"且数值较大）
-        if '万亿' in text and 'market_cap' not in data:
-            data['market_cap'] = text
-        # 识别成交额
-        elif '亿' in text and '万亿' not in text and 'amount' not in data:
-            data['amount'] = text
-        # 识别市盈率（两位小数的数字，通常在15-50之间）
-        elif re.match(r'^\d{1,3}\.\d{2}$', text):
-            val = float(text)
-            if 5 < val < 200 and 'pe' not in data:
-                data['pe'] = text
-            elif 0 < val < 20 and 'pb' not in data and 'pe' in data:
-                data['pb'] = text
-        # 识别换手率（以%结尾，数值较小）
-        elif text.endswith('%') and 'turnover' not in data:
-            try:
-                val = float(text.rstrip('%'))
-                if 0 < val < 10:
-                    data['turnover'] = text
-            except:
-                pass
-    
-    # 尝试从表格提取更多数据
-    try:
-        # 港股/美股页面的数据表格
-        rows = driver.find_elements(By.CSS_SELECTOR, "div.quote-item, tr.quote-row, .data-item")
-        for row in rows:
-            text = row.text.strip()
-            if '今开' in text or '开盘' in text:
-                match = re.search(r'[\d.]+', text.split('\n')[-1] if '\n' in text else text)
-                if match:
-                    data['open'] = match.group()
-            elif '昨收' in text:
-                match = re.search(r'[\d.]+', text.split('\n')[-1] if '\n' in text else text)
-                if match:
-                    data['prev_close'] = match.group()
-            elif '最高' in text:
-                match = re.search(r'[\d.]+', text.split('\n')[-1] if '\n' in text else text)
-                if match:
-                    data['high'] = match.group()
-            elif '最低' in text:
-                match = re.search(r'[\d.]+', text.split('\n')[-1] if '\n' in text else text)
-                if match:
-                    data['low'] = match.group()
-    except:
-        pass
-    
-    # 获取股票名称
-    try:
-        # 港股/美股页面
-        name_el = driver.find_element(By.CSS_SELECTOR, "h1.name, .stock-name, .quote-name, title")
-        if name_el:
-            name = name_el.text.strip()
-            # 从 title 提取
-            if '(' in name:
-                name = name.split('(')[0].strip()
-            data['name'] = name
-    except:
-        pass
-    
-    # 如果还没有名称，从 title 获取
-    if 'name' not in data or not data['name']:
-        title = driver.title
-        if title:
-            # "腾讯控股(00700)股票价格_行情_走势图—东方财富网"
-            match = re.match(r'^(.+?)\(', title)
-            if match:
-                data['name'] = match.group(1).strip()
-    
-    return data
-
-
-def fetch_stock_data(code: str, market: str, headless: bool = True, timeout: int = 15) -> Dict[str, Any]:
-    """
-    获取股票数据
-    """
-    url = get_stock_url(code, market)
     result = {
         "success": False,
         "code": code,
         "market": market.upper(),
-        "url": url,
         "data": {},
         "error": None,
-        "source": "东方财富",
+        "source": "东方财富API",
         "fetch_time": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    driver = None
     try:
-        print(f"正在启动浏览器...", file=sys.stderr)
-        driver = create_driver(headless=headless)
-        driver.set_page_load_timeout(timeout)
+        # 如果输入的是中文名称，先搜索代码
+        if not code.isalnum() or (not code.isdigit() and not code.isupper()):
+            print(f"正在搜索股票: {code}...", file=sys.stderr)
+            search_result = search_stock_code(code)
+            if search_result:
+                code = search_result['code']
+                market = search_result['market']
+                secid = search_result['secid']
+                result['code'] = code
+                result['market'] = market.upper()
+                result['search_name'] = search_result['name']
+                print(f"找到股票: {search_result['name']} ({code})", file=sys.stderr)
+            else:
+                result["error"] = f"未找到股票: {code}"
+                return result
+        else:
+            secid = get_secid(code, market)
         
-        print(f"正在访问: {url}", file=sys.stderr)
-        driver.get(url)
+        # 构建 API URL
+        fields = "f43,f44,f45,f46,f47,f48,f49,f50,f51,f52,f55,f57,f58,f60,f116,f117,f162,f163,f167,f168,f169,f170"
+        params = {
+            "secid": secid,
+            "fields": fields,
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b"
+        }
         
-        print(f"等待页面数据加载...", file=sys.stderr)
-        time.sleep(4)  # 等待 JS 执行
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Referer': 'https://quote.eastmoney.com/',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br'
+        }
         
-        # 提取数据
-        data = extract_price_data(driver)
-        result["data"] = data
+        print(f"正在获取数据: {secid}...", file=sys.stderr)
+        
+        api_data = None
+        last_error = None
+        
+        for attempt in range(retry):
+            try:
+                if USE_REQUESTS:
+                    session = requests.Session()
+                    response = session.get(
+                        BASE_API, 
+                        params=params, 
+                        headers=headers, 
+                        timeout=15
+                    )
+                    api_data = response.json()
+                else:
+                    import gzip
+                    url = f"{BASE_API}?{urllib.parse.urlencode(params)}"
+                    req = urllib.request.Request(url)
+                    for k, v in headers.items():
+                        req.add_header(k, v)
+                    with urllib.request.urlopen(req, timeout=15) as resp:
+                        if resp.info().get('Content-Encoding') == 'gzip':
+                            data = gzip.decompress(resp.read())
+                        else:
+                            data = resp.read()
+                        api_data = json.loads(data.decode('utf-8'))
+                break
+            except Exception as e:
+                last_error = e
+                if attempt < retry - 1:
+                    print(f"重试 {attempt + 2}/{retry}...", file=sys.stderr)
+                    time.sleep(1)
+        
+        if api_data is None:
+            result["error"] = f"网络请求失败: {last_error}"
+            return result
+        
+        if api_data.get('rc') != 0 or not api_data.get('data'):
+            result["error"] = "API返回数据为空"
+            return result
+        
+        raw = api_data['data']
+        
+        # 解析数据
+        # 价格类字段需要除以100（API返回的是分）
+        # 涨跌幅需要除以100（API返回的是0.01%）
+        def safe_price(val, divisor=100):
+            if val is None or val == '-':
+                return '-'
+            try:
+                return f"{float(val) / divisor:.2f}"
+            except:
+                return '-'
+        
+        def safe_percent(val):
+            if val is None or val == '-':
+                return '-'
+            try:
+                return f"{float(val) / 100:.2f}%"
+            except:
+                return '-'
+        
+        def safe_amount(val):
+            if val is None or val == '-':
+                return '-'
+            try:
+                v = float(val)
+                if v >= 1e12:
+                    return f"{v/1e12:.2f}万亿"
+                elif v >= 1e8:
+                    return f"{v/1e8:.2f}亿"
+                elif v >= 1e4:
+                    return f"{v/1e4:.2f}万"
+                else:
+                    return f"{v:.2f}"
+            except:
+                return '-'
+        
+        data = {
+            'code': raw.get('f57', code),
+            'name': raw.get('f58', ''),
+            'price': safe_price(raw.get('f43')),
+            'change': safe_price(raw.get('f169')),
+            'change_percent': safe_percent(raw.get('f170')),
+            'open': safe_price(raw.get('f46')),
+            'prev_close': safe_price(raw.get('f60')),
+            'high': safe_price(raw.get('f44')),
+            'low': safe_price(raw.get('f45')),
+            'volume': raw.get('f47', '-'),  # 成交量(手)
+            'amount': safe_amount(raw.get('f48')),  # 成交额
+            'market_cap': safe_amount(raw.get('f116')),  # 总市值
+            'float_cap': safe_amount(raw.get('f117')),  # 流通市值
+            'pe': safe_price(raw.get('f162'), 100) if raw.get('f162') else safe_price(raw.get('f163'), 100),  # 市盈率
+            'pb': safe_price(raw.get('f167'), 100),  # 市净率
+            'turnover': safe_percent(raw.get('f168')),  # 换手率
+            'volume_ratio': safe_price(raw.get('f50'), 100),  # 量比
+            'limit_up': safe_price(raw.get('f51')),  # 涨停价
+            'limit_down': safe_price(raw.get('f52')),  # 跌停价
+        }
+        
+        result['data'] = data
+        result['url'] = f"https://quote.eastmoney.com/{market.lower()}{code}.html" if market.lower() in ['sh', 'sz'] else f"https://quote.eastmoney.com/{market.lower()}/{code}.html"
         
         # 检查是否成功获取到价格
-        if data.get("price") and data["price"] != "-":
-            result["success"] = True
-            print(f"✅ 成功获取数据", file=sys.stderr)
+        if data.get('price') and data['price'] != '-':
+            result['success'] = True
+            print(f"✅ 成功获取数据: {data.get('name', code)} 价格: {data['price']}", file=sys.stderr)
         else:
-            result["error"] = "无法提取价格数据"
-            print(f"⚠️ 警告：{result['error']}", file=sys.stderr)
+            result['error'] = "无法获取有效价格数据"
             
-    except TimeoutException:
-        result["error"] = f"页面加载超时 ({timeout}秒)"
-        print(f"❌ 错误：{result['error']}", file=sys.stderr)
     except Exception as e:
-        result["error"] = str(e)
-        print(f"❌ 错误：{result['error']}", file=sys.stderr)
-    finally:
-        if driver:
-            driver.quit()
+        result['error'] = str(e)
+        print(f"❌ 错误: {result['error']}", file=sys.stderr)
+    
+    return result
+
+
+def fetch_fund_flow(code: str, market: str) -> Dict[str, Any]:
+    """
+    获取股票资金流向数据
+    """
+    result = {
+        "success": False,
+        "data": {},
+        "error": None
+    }
+    
+    try:
+        secid = get_secid(code, market)
+        
+        # 资金流向 API
+        base_url = "https://push2.eastmoney.com/api/qt/stock/fflow/kline/get"
+        params = {
+            "secid": secid,
+            "fields1": "f1,f2,f3,f7",
+            "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65",
+            "klt": "1",  # 1分钟
+            "lmt": "1",
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b"
+        }
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+            'Referer': 'https://quote.eastmoney.com/'
+        }
+        
+        if USE_REQUESTS:
+            response = requests.get(base_url, params=params, headers=headers, timeout=15)
+            api_data = response.json()
+        else:
+            url = f"{base_url}?{urllib.parse.urlencode(params)}"
+            req = urllib.request.Request(url)
+            for k, v in headers.items():
+                req.add_header(k, v)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                api_data = json.loads(resp.read().decode('utf-8'))
+        
+        if api_data.get('data', {}).get('klines'):
+            latest = api_data['data']['klines'][-1].split(',')
+            # 格式: 时间,主力净流入,小单净流入,中单净流入,大单净流入,超大单净流入
+            def safe_flow(val):
+                try:
+                    v = float(val)
+                    if abs(v) >= 1e8:
+                        return f"{v/1e8:.2f}亿"
+                    elif abs(v) >= 1e4:
+                        return f"{v/1e4:.2f}万"
+                    else:
+                        return f"{v:.2f}"
+                except:
+                    return '-'
+            
+            result['data'] = {
+                'time': latest[0] if len(latest) > 0 else '-',
+                'main_flow': safe_flow(latest[1]) if len(latest) > 1 else '-',
+                'small_flow': safe_flow(latest[2]) if len(latest) > 2 else '-',
+                'medium_flow': safe_flow(latest[3]) if len(latest) > 3 else '-',
+                'large_flow': safe_flow(latest[4]) if len(latest) > 4 else '-',
+                'super_large_flow': safe_flow(latest[5]) if len(latest) > 5 else '-',
+            }
+            result['success'] = True
+            
+    except Exception as e:
+        result['error'] = str(e)
     
     return result
 
@@ -291,21 +395,35 @@ def format_output(result: Dict[str, Any], output_format: str = "json") -> str:
         if result["success"]:
             data = result["data"]
             name = data.get('name', '未知')
+            
+            # 判断涨跌颜色标记
+            change = data.get('change', '-')
+            change_pct = data.get('change_percent', '-')
+            if change != '-' and float(change) > 0:
+                trend = "📈"
+            elif change != '-' and float(change) < 0:
+                trend = "📉"
+            else:
+                trend = "➡️"
+            
             lines.append(f"")
-            lines.append(f"  📊 {name}")
+            lines.append(f"  📊 {name} ({data.get('code', result['code'])})")
             lines.append(f"")
             lines.append(f"  💰 当前价格: {data.get('price', '-')}")
-            lines.append(f"  📈 涨跌额:   {data.get('change', '-')}")
-            lines.append(f"  📉 涨跌幅:   {data.get('change_percent', '-')}")
+            lines.append(f"  {trend} 涨跌额:   {change}")
+            lines.append(f"  {trend} 涨跌幅:   {change_pct}")
             lines.append(f"")
             lines.append(f"  ┌─────────────────────────────────────────────┐")
             lines.append(f"  │ 今开: {data.get('open', '-'):>10}  │  昨收: {data.get('prev_close', '-'):>10} │")
             lines.append(f"  │ 最高: {data.get('high', '-'):>10}  │  最低: {data.get('low', '-'):>10} │")
+            lines.append(f"  │ 涨停: {data.get('limit_up', '-'):>10}  │  跌停: {data.get('limit_down', '-'):>10} │")
             lines.append(f"  └─────────────────────────────────────────────┘")
             lines.append(f"")
             lines.append(f"  成交额:   {data.get('amount', '-')}")
             lines.append(f"  总市值:   {data.get('market_cap', '-')}")
+            lines.append(f"  流通市值: {data.get('float_cap', '-')}")
             lines.append(f"  换手率:   {data.get('turnover', '-')}")
+            lines.append(f"  量比:     {data.get('volume_ratio', '-')}")
             lines.append(f"")
             lines.append(f"  市盈率(PE): {data.get('pe', '-')}")
             lines.append(f"  市净率(PB): {data.get('pb', '-')}")
@@ -320,7 +438,7 @@ def format_output(result: Dict[str, Any], output_format: str = "json") -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="东方财富股票数据抓取工具 (Selenium)",
+        description="东方财富股票数据抓取工具 v3.0 (API版本)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:
@@ -328,29 +446,38 @@ def main():
   %(prog)s MU --market us             # 获取美光科技(美股)
   %(prog)s 600519 --market sh         # 获取贵州茅台(A股沪市)
   %(prog)s 300750 --market sz         # 获取宁德时代(A股深市)
+  %(prog)s 华丰科技 --market auto     # 通过名称搜索
   %(prog)s AAPL -m us -o text         # 文本格式输出
 """
     )
-    parser.add_argument("code", help="股票代码")
+    parser.add_argument("code", help="股票代码或名称")
     parser.add_argument("--market", "-m", default="auto",
                         choices=["hk", "us", "sh", "sz", "bj", "auto"],
                         help="市场类型 (默认: auto 自动识别)")
     parser.add_argument("--output", "-o", default="json",
                         choices=["json", "text"],
                         help="输出格式 (默认: json)")
+    parser.add_argument("--with-flow", "-f", action="store_true",
+                        help="同时获取资金流向数据")
+    
+    # 保留旧参数兼容性
     parser.add_argument("--show-browser", action="store_true",
-                        help="显示浏览器窗口（调试用）")
+                        help="(已废弃，保留兼容)")
     parser.add_argument("--timeout", "-t", type=int, default=15,
-                        help="超时时间，秒 (默认: 15)")
+                        help="(已废弃，保留兼容)")
     
     args = parser.parse_args()
     
     result = fetch_stock_data(
         code=args.code,
-        market=args.market,
-        headless=not args.show_browser,
-        timeout=args.timeout
+        market=args.market
     )
+    
+    # 如果需要资金流向
+    if args.with_flow and result['success']:
+        flow_result = fetch_fund_flow(result['code'], result['market'].lower())
+        if flow_result['success']:
+            result['data']['fund_flow'] = flow_result['data']
     
     print(format_output(result, args.output))
     sys.exit(0 if result["success"] else 1)
