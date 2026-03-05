@@ -101,7 +101,8 @@ function performInstall(sourceDir, targetDir, cwd) {
     log('   - 基本面分析 (35%): PE/PB、ROE、成长性', 'reset');
     log('   - 新闻面分析 (20%): 公告、研报、舆情', 'reset');
     log('   - 资金面分析 (35%): 主力净比(核心)、北向资金', 'reset');
-    log('   - 技术面分析 (10%): 均线、支撑压力位\n', 'reset');
+    log('   - 技术面分析 (10%): 均线、支撑压力位', 'reset');
+    log('   - 🆕 并购重组分析: 自动识别并购事项，三场景估值测算\n', 'reset');
 
     log('⚠️  注意事项:', 'yellow');
     log('   - 建议先登录东方财富网以获取完整数据', 'reset');

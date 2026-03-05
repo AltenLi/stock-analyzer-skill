@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>民爆光电(301362) 投资分析报告</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --success-color: #34a853;
+            --warning-color: #fbbc04;
+            --danger-color: #ea4335;
+            --info-color: #4285f4;
+            --bg-color: #26527d;
+            --card-bg: #ffffff;
+            --text-color: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #e65100, #bf360c);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .price-box {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 12px;
+        }
+        
+        .current-price {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .price-change {
+            font-size: 18px;
+        }
+        
+        .price-change.up { color: #ffcdd2; }
+        .price-change.down { color: #c8e6c9; }
+        
+        .info-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-header h2 {
+            font-size: 20px;
+            color: var(--text-color);
+        }
+        
+        .card-header .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .icon-blue { background: #e8f0fe; color: var(--primary-color); }
+        .icon-green { background: #e6f4ea; color: var(--success-color); }
+        .icon-orange { background: #fef7e0; color: var(--warning-color); }
+        .icon-red { background: #fce8e6; color: var(--danger-color); }
+        
+        .score-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .score-card {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-color);
+            border-radius: 12px;
+        }
+        
+        .score-card .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .score-excellent { background: linear-gradient(135deg, #34a853, #1e8e3e); }
+        .score-good { background: linear-gradient(135deg, #4285f4, #1a73e8); }
+        .score-medium { background: linear-gradient(135deg, #fbbc04, #f9ab00); }
+        .score-poor { background: linear-gradient(135deg, #ea4335, #c5221f); }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-fill.excellent { background: var(--success-color); }
+        .progress-fill.good { background: var(--info-color); }
+        .progress-fill.medium { background: var(--warning-color); }
+        .progress-fill.poor { background: var(--danger-color); }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        
+        .data-table tr:hover {
+            background: var(--bg-color);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-success { background: #e6f4ea; color: #1e8e3e; }
+        .status-warning { background: #fef7e0; color: #b06000; }
+        .status-danger { background: #fce8e6; color: #c5221f; }
+        .status-info { background: #e8f0fe; color: #1a73e8; }
+        
+        .recommendation {
+            background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .recommendation h3 {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation .verdict {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .price-targets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .price-target {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .price-target .label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .price-target .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .risk-warning {
+            background: #fce4ec;
+            border-left: 4px solid #c62828;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .risk-warning h4 {
+            color: #c62828;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .risk-warning ul {
+            margin-left: 20px;
+            color: #5d4037;
+        }
+        
+        .risk-warning li {
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+        
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .quick-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--bg-color);
+            border-radius: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+        
+        .quick-link:hover {
+            background: #e8f0fe;
+        }
+        
+        .highlight-box {
+            background: #fff3e0;
+            border: 1px solid #ffe0b2;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .highlight-box h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 22px; }
+            .current-price { font-size: 28px; }
+            .price-targets { grid-template-columns: 1fr; }
+            .score-section { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+            .header { background: #e65100 !important; -webkit-print-color-adjust: exact; }
+            .recommendation { background: #ff9800 !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>民爆光电 (301362.SZ)</h1>
+            <div class="subtitle">投资分析报告（含并购估值分析） · 生成时间：2026年3月5日 · 数据来源：东方财富网</div>
+            
+            <div class="stock-info">
+                <div class="price-box">
+                    <div class="current-price">124.87</div>
+                    <div class="price-change up">+5.74% (+6.78)</div>
+                </div>
+                <div class="info-tags">
+                    <span class="tag">💡 LED照明 · 创业板</span>
+                    <span class="tag">💰 总市值 130.70亿</span>
+                    <span class="tag">📈 换手率 23.03%</span>
+                    <span class="tag">📋 PE ~64.6(TTM)</span>
+                    <span class="tag">📋 PB ~5.13</span>
+                    <span class="tag">🏢 并购标的：厦芝精密</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 综合评分 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-orange">📊</div>
+                <h2>综合评分：5.15/10 — 观望等待（并购预期提升） ⚠️</h2>
+            </div>
+            
+            <div class="score-section">
+                <div class="score-card">
+                    <div class="label">基本面 (35%)</div>
+                    <div class="score-circle score-medium">5</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill medium" style="width: 50%"></div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 5px;">原4分+并购加1分</div>
+                </div>
+                <div class="score-card">
+                    <div class="label">新闻面 (20%)</div>
+                    <div class="score-circle score-good">7</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill good" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div class="score-card">
+                    <div class="label">资金面 (35%)</div>
+                    <div class="score-circle score-medium">4</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill medium" style="width: 40%"></div>
+                    </div>
+                </div>
+                <div class="score-card">
+                    <div class="label">技术面 (10%)</div>
+                    <div class="score-circle score-poor">3</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill poor" style="width: 30%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h4>⚠️ 特别警示：短期涨幅巨大，严重偏离基本面</h4>
+                <p style="color: #5d4037; line-height: 1.8;">
+                    民爆光电近1个月内涨幅超过200%（从43元附近暴涨至125元），连续多次触及涨停板。
+                    公司已发布多次股价异常波动公告，明确提示"股价短期涨幅较大，显著偏离大盘指数和行业估值，可能存在市场情绪过热的情形和股价下跌风险"。
+                    <strong>当前PE约64.6倍，远高于LED照明行业合理估值。并购估值测算显示中性情景合理价约102元，当前已溢价22%。</strong>
+                </p>
+            </div>
+        </div>
+        
+        <!-- 基本面分析 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-blue">📋</div>
+                <h2>基本面分析（5/10）🟡 含并购调整+1</h2>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--text-secondary);">估值指标</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>数值</th>
+                        <th>行业参考</th>
+                        <th>评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>市盈率(PE-TTM)</td>
+                        <td><strong>~64.6</strong></td>
+                        <td>20-30</td>
+                        <td><span class="status status-danger">🔴 严重偏高</span></td>
+                    </tr>
+                    <tr>
+                        <td>市净率(PB)</td>
+                        <td><strong>~5.13</strong></td>
+                        <td>1.5-3.0</td>
+                        <td><span class="status status-danger">🔴 严重偏高</span></td>
+                    </tr>
+                    <tr>
+                        <td>市销率(PS-TTM)</td>
+                        <td><strong>~8.3</strong></td>
+                        <td>1-3</td>
+                        <td><span class="status status-danger">🔴 严重偏高</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">盈利能力</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>数值</th>
+                        <th>评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ROE(2024年报)</td>
+                        <td><strong>9.09%</strong></td>
+                        <td><span class="status status-warning">🟡 一般，未超15%基准</span></td>
+                    </tr>
+                    <tr>
+                        <td>毛利率(2024年)</td>
+                        <td><strong>30.16%</strong></td>
+                        <td><span class="status status-success">🟢 良好，刚过30%</span></td>
+                    </tr>
+                    <tr>
+                        <td>毛利率(2025Q3)</td>
+                        <td><strong>28.42%</strong></td>
+                        <td><span class="status status-warning">🟡 同比下滑</span></td>
+                    </tr>
+                    <tr>
+                        <td>净利率(2025Q1)</td>
+                        <td><strong>14.85%</strong></td>
+                        <td><span class="status status-success">🟢 尚可</span></td>
+                    </tr>
+                    <tr>
+                        <td>EPS(2024年报)</td>
+                        <td><strong>2.22元</strong></td>
+                        <td><span class="status status-info">⚪ 对应PE 58.5x（当前价）</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">成长性 ⚠️ 业绩下滑</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>数值</th>
+                        <th>评价</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2024年营收</td>
+                        <td><strong>16.41亿</strong> 同比+7.35%</td>
+                        <td><span class="status status-success">🟢 稳健增长</span></td>
+                    </tr>
+                    <tr>
+                        <td>2024年净利润</td>
+                        <td><strong>2.31亿</strong> 同比+0.17%</td>
+                        <td><span class="status status-warning">🟡 几乎零增长</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025前三季度营收</td>
+                        <td><strong>12.30亿</strong> 同比-0.04%</td>
+                        <td><span class="status status-danger">🔴 营收停滞</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025前三季度净利润</td>
+                        <td><strong>1.50亿</strong> 同比-19.75%</td>
+                        <td><span class="status status-danger">🔴 利润大幅下滑</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025Q3单季净利润</td>
+                        <td><strong>0.43亿</strong> 同比-27.91%</td>
+                        <td><span class="status status-danger">🔴 加速下滑</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025Q1营收</td>
+                        <td><strong>4.03亿</strong> 同比+15.66%</td>
+                        <td><span class="status status-success">🟢 一季度有所改善</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025Q1净利润</td>
+                        <td><strong>0.60亿</strong> 同比+18.45%</td>
+                        <td><span class="status status-success">🟢 一季度回暖</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">财务健康</h4>
+            <table class="data-table">
+                <tbody>
+                    <tr>
+                        <td>资产负债率(2024年)</td>
+                        <td><strong>17.89%</strong></td>
+                        <td><span class="status status-success">🟢 极低，财务稳健</span></td>
+                    </tr>
+                    <tr>
+                        <td>资产负债率(2025Q3)</td>
+                        <td><strong>15.86%</strong></td>
+                        <td><span class="status status-success">🟢 极低</span></td>
+                    </tr>
+                    <tr>
+                        <td>经营现金流(2024年)</td>
+                        <td><strong>2.52亿</strong></td>
+                        <td><span class="status status-success">🟢 现金流良好</span></td>
+                    </tr>
+                    <tr>
+                        <td>应收账款占净利润比</td>
+                        <td><strong>94.11%（2025Q1）</strong></td>
+                        <td><span class="status status-danger">🔴 体量过大，回款风险</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">主营业务构成(2024年)</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>业务板块</th>
+                        <th>占比</th>
+                        <th>毛利率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>商业照明</td>
+                        <td><strong>57.09%</strong></td>
+                        <td>25.11%</td>
+                    </tr>
+                    <tr>
+                        <td>工业照明</td>
+                        <td><strong>36.75%</strong></td>
+                        <td>31.27%</td>
+                    </tr>
+                    <tr>
+                        <td>特种照明</td>
+                        <td><strong>6.08%</strong></td>
+                        <td>41.30%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 新闻面分析 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-green">📰</div>
+                <h2>新闻面分析（7/10）🟢</h2>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--text-secondary);">近期重要公告与事件</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>事件</th>
+                        <th>影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2026.01.31</td>
+                        <td>公告拟收购厦门厦芝精密科技100%股权（现金51%+发行股份49%），切入高端PCB钻针领域</td>
+                        <td><span class="status status-success">🟢 重大利好（核心催化）</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026.02.25</td>
+                        <td>厦芝精密已形成英伟达M9材料针对性技术储备，通过部分客户测试，具备量产能力</td>
+                        <td><span class="status status-success">🟢 利好（AI概念加持）</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026.03.03</td>
+                        <td>连续3个交易日收盘价涨幅偏离值累计超30%，发布股价异常波动公告</td>
+                        <td><span class="status status-danger">🔴 风险提示</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026.02.05</td>
+                        <td>连续4交易日涨幅累计109%，公司公告"业绩短期承压，股价显著偏离行业估值"</td>
+                        <td><span class="status status-danger">🔴 公司自行降温</span></td>
+                    </tr>
+                    <tr>
+                        <td>2026.03.04</td>
+                        <td>收购厦芝精密进展公告：审计评估工作进行中，尚需多项审批</td>
+                        <td><span class="status status-info">🟡 存在不确定性</span></td>
+                    </tr>
+                    <tr>
+                        <td>2025.11</td>
+                        <td>限制性股票激励计划，覆盖223名核心员工</td>
+                        <td><span class="status status-success">🟢 绑定人才</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">机构评级</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>机构</th>
+                        <th>评级</th>
+                        <th>预测</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>天风证券</td>
+                        <td><span class="status status-info">增持</span></td>
+                        <td>2025E净利2.52亿，EPS 2.41元</td>
+                        <td>核心照明业务稳步增长</td>
+                    </tr>
+                    <tr>
+                        <td>申万宏源</td>
+                        <td><span class="status status-info">增持</span></td>
+                        <td>25-27年净利2.5/2.7/3.0亿</td>
+                        <td>对应PE 16x/15x/14x（研报发布时股价43元）</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="highlight-box">
+                <h4>🔍 核心逻辑：收购厦芝精密 → PCB钻针 → AI/英伟达概念</h4>
+                <p style="color: #5d4037; line-height: 1.8;">
+                    近期暴涨的核心驱动力是公司拟收购厦芝精密，切入PCB钻针赛道。厦芝精密针对英伟达下一代Rubin系列使用的M9材料，已形成技术储备并具备量产能力。AI PCB材料升级带来钻针量价齐升预期。<br>
+                    <strong>但需注意</strong>：① 收购尚未完成，仍需多项审批；② 收购完成前公司主业仍是LED照明；③ 公司自身已多次提示"股价显著偏离基本面"。
+                </p>
+            </div>
+        </div>
+        
+        <!-- 资金面分析 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-orange">💰</div>
+                <h2>资金面分析（4/10）🟡</h2>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--text-secondary);">近期资金流向</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>日期</th>
+                        <th>主力净流入</th>
+                        <th>游资</th>
+                        <th>散户</th>
+                        <th>解读</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>3月5日(盘中)</td>
+                        <td style="color: #2e7d32;"><strong>-2610万</strong> (净比-3.07%)</td>
+                        <td>-</td>
+                        <td>中小单净流入+2610万</td>
+                        <td><span class="status status-warning">🟡 主力小幅流出</span></td>
+                    </tr>
+                    <tr>
+                        <td>3月3日</td>
+                        <td style="color: #c62828;"><strong>+3319万</strong> (2.67%)</td>
+                        <td style="color: #c62828;">+3714万</td>
+                        <td style="color: #2e7d32;">-7033万</td>
+                        <td><span class="status status-info">主力+游资流入，散户大幅流出</span></td>
+                    </tr>
+                    <tr>
+                        <td>3月2日</td>
+                        <td style="color: #2e7d32;"><strong>-1.28亿</strong></td>
+                        <td style="color: #c62828;">+6648万</td>
+                        <td style="color: #c62828;">+6198万</td>
+                        <td><span class="status status-danger">🔴 主力大幅出逃</span></td>
+                    </tr>
+                    <tr>
+                        <td>2月27日</td>
+                        <td style="color: #c62828;"><strong>+4387万</strong> (5.67%)</td>
+                        <td style="color: #2e7d32;">-3385万</td>
+                        <td style="color: #2e7d32;">-1002万</td>
+                        <td><span class="status status-success">🟢 主力流入</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin: 20px 0; padding: 15px; background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 8px;">
+                <strong style="color: #e65100;">📊 主力净比（东方财富实时）：-3.07%</strong>
+                <span style="color: #5d4037; margin-left: 10px;">→ 主力小幅流出，资金面评分：4分</span>
+            </div>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">交易特征</h4>
+            <table class="data-table">
+                <tbody>
+                    <tr>
+                        <td>今日换手率</td>
+                        <td><strong>18.80%</strong></td>
+                        <td><span class="status status-danger">🔴 极度活跃，投机氛围浓厚</span></td>
+                    </tr>
+                    <tr>
+                        <td>量比</td>
+                        <td><strong>2.78</strong></td>
+                        <td><span class="status status-danger">🔴 放量显著</span></td>
+                    </tr>
+                    <tr>
+                        <td>今日成交额</td>
+                        <td><strong>6.92亿</strong></td>
+                        <td><span class="status status-warning">🟡 高换手高成交</span></td>
+                    </tr>
+                    <tr>
+                        <td>流通市值</td>
+                        <td><strong>38.50亿</strong>（总市值135.83亿）</td>
+                        <td><span class="status status-warning">🟡 小盘股，易被资金操纵</span></td>
+                    </tr>
+                    <tr>
+                        <td>龙虎榜</td>
+                        <td colspan="2">3月2日、3月3日连续上榜（换手率>30%），资金分歧巨大</td>
+                    </tr>
+                    <tr>
+                        <td>股东户数(2/27)</td>
+                        <td><strong>13433户</strong></td>
+                        <td><span class="status status-info">环比减少21.42%，筹码集中</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-top: 20px; color: var(--text-secondary); line-height: 1.8;">
+                <strong>资金面解读</strong>：资金分歧极大。3月2日涨停当天主力净流出1.28亿，典型的"涨停出货"模式。3月3日主力小幅回流，但整体来看主力并未形成一致性买入。
+                换手率高达18.80%，连续多日超30%，属于极端投机状态。流通盘仅38.50亿，极易被游资炒作。<strong>当前为典型的题材炒作+资金博弈格局，而非基本面驱动的健康上涨。</strong>
+            </p>
+        </div>
+        
+        <!-- 技术面参考 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-red">📈</div>
+                <h2>技术面参考（3/10）🔴</h2>
+            </div>
+            
+            <table class="data-table">
+                <tbody>
+                    <tr>
+                        <td>当前价格</td>
+                        <td><strong>124.87元</strong></td>
+                    </tr>
+                    <tr>
+                        <td>今日涨幅</td>
+                        <td style="color: #c62828;"><strong>+5.74%</strong>（连续4日上涨，区间涨幅30.26%）</td>
+                    </tr>
+                    <tr>
+                        <td>今日成交额</td>
+                        <td>8.50亿（盘中）/ 预估全天2.51亿</td>
+                    </tr>
+                    <tr>
+                        <td>近1个月涨幅</td>
+                        <td style="color: #c62828;"><strong>约+200%</strong>（从43元暴涨至125元）</td>
+                    </tr>
+                    <tr>
+                        <td>52周最高/最低</td>
+                        <td>99.87元 / 29.49元（当前已远超52周最高）</td>
+                    </tr>
+                    <tr>
+                        <td>2月高点/低点</td>
+                        <td><strong>~135元 / ~73元</strong>（一轮冲高后暴跌46%再反弹）</td>
+                    </tr>
+                    <tr>
+                        <td>技术形态</td>
+                        <td>急速拉升后高位震荡，历史上2月初冲135后暴跌至73元</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-top: 20px; color: var(--text-secondary); line-height: 1.8;">
+                <strong>技术面极度危险</strong>：股价短期暴涨200%+，完全脱离任何均线支撑体系。
+                2月初曾出现过冲高到135元后急跌至73元（跌幅46%）的先例。
+                <strong>当前处于极端过热状态，追高风险极高。</strong>
+            </p>
+        </div>
+        
+        <!-- ==================== 并购重组分析（新增核心板块）==================== -->
+        <div class="card" style="border: 2px solid #1565c0;">
+            <div class="card-header" style="border-bottom: 2px solid #1565c0;">
+                <div class="icon" style="background: #e3f2fd; color: #1565c0;">🏢</div>
+                <h2 style="color: #1565c0;">并购重组分析 · 收购厦芝精密100%股权</h2>
+            </div>
+            
+            <!-- A.1 并购概况 -->
+            <h4 style="margin-bottom: 15px; color: #1565c0; font-size: 16px;">A.1 并购概况</h4>
+            <table class="data-table">
+                <tbody>
+                    <tr>
+                        <td style="width: 140px; font-weight: 600;">收购标的</td>
+                        <td>厦门厦芝精密科技有限公司 + 江西麦达智能科技有限公司（100%股权）</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">收购比例</td>
+                        <td><strong>100%</strong>（厦芝精密：51%现金 + 49%发行股份）</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">交易对方</td>
+                        <td>厦门麦达智能科技有限公司（标的控股股东）</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">支付方式</td>
+                        <td>现金 + 发行股份混合支付，并募集配套资金</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">交易对价</td>
+                        <td><strong>待定</strong>（以资产评估结果为基础协商确定，审计评估工作进行中）</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">并购进展</td>
+                        <td><span class="status status-warning">🟡 预案阶段</span> — 尚需董事会再审 → 股东大会 → 深交所审核 → 证监会注册</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">业绩承诺</td>
+                        <td>暂未披露（评估工作进行中）</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">战略意义</td>
+                        <td>LED照明 → "LED照明 + 精密制造"双主业，切入PCB钻针高端赛道</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- A.2 标的公司画像 -->
+            <h4 style="margin: 25px 0 15px; color: #1565c0; font-size: 16px;">A.2 标的公司画像 — 厦芝精密</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>数值</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>成立时间</td>
+                        <td>1995年</td>
+                        <td>原日本东芝泰珂洛出资设立，2014年被收购</td>
+                    </tr>
+                    <tr>
+                        <td>主营业务</td>
+                        <td>PCB/FPC/IC载板用钨钢微钻</td>
+                        <td>产品尺寸0.09-0.35mm，擅长0.20mm以下极小径钻针</td>
+                    </tr>
+                    <tr>
+                        <td>应用领域</td>
+                        <td>通信、消费电子、汽车电子、AI服务器、低轨卫星</td>
+                        <td>已服务全球PCB头部客户</td>
+                    </tr>
+                    <tr>
+                        <td>技术亮点</td>
+                        <td>已形成英伟达M9材料针对性技术储备</td>
+                        <td><span class="status status-success">🟢 通过部分客户测试，具备量产能力</span></td>
+                    </tr>
+                    <tr>
+                        <td>生产基地</td>
+                        <td>厦门 + 江西鹰潭</td>
+                        <td>月产能约1500万支</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2025年营收</strong></td>
+                        <td><strong>1.35亿元</strong></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2025年净利润</strong></td>
+                        <td><strong>1127.37万元</strong></td>
+                        <td>净利率约8.35%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总资产</strong></td>
+                        <td><strong>1.53亿元</strong></td>
+                        <td>截至2025年末</td>
+                    </tr>
+                    <tr>
+                        <td><strong>净资产</strong></td>
+                        <td><strong>3965.18万元</strong></td>
+                        <td>所有者权益合计</td>
+                    </tr>
+                    <tr>
+                        <td><strong>资产负债率</strong></td>
+                        <td style="color: #c62828;"><strong>74.06%</strong></td>
+                        <td><span class="status status-danger">🔴 负债率较高</span></td>
+                    </tr>
+                    <tr>
+                        <td>行业深耕</td>
+                        <td>30年</td>
+                        <td>钻针领域技术沉淀深厚</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin: 15px 0; padding: 12px; background: #e3f2fd; border-radius: 8px; font-size: 13px;">
+                <strong>📌 可比公司参考</strong>：夏厦精密（001306）—— 同属PCB钻针/精密齿轮领域，PE(TTM) 135x，PE(静) 86x，PB 4.0，2024年营收6.66亿、净利6208万。行业PE中值57.73x。
+            </div>
+            
+            <!-- A.3 并表后估值测算 -->
+            <h4 style="margin: 25px 0 15px; color: #1565c0; font-size: 16px;">A.3 并表后估值测算</h4>
+            
+            <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 13px;">
+                ⚠️ 注意：交易对价尚未确定，以下测算基于公开可获取的标的财务数据，仅供参考。
+            </p>
+            
+            <h5 style="margin-bottom: 10px;">并表后关键财务数据（收购100%股权）</h5>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>收购前（民爆光电2024年报）</th>
+                        <th>标的贡献（厦芝精密×100%）</th>
+                        <th>并表后预期</th>
+                        <th>变化</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>营业收入</td>
+                        <td>16.41亿</td>
+                        <td>+1.35亿</td>
+                        <td><strong>17.76亿</strong></td>
+                        <td style="color: #2e7d32;">+8.2%</td>
+                    </tr>
+                    <tr>
+                        <td>净利润</td>
+                        <td>2.31亿</td>
+                        <td>+0.1127亿</td>
+                        <td><strong>2.42亿</strong></td>
+                        <td style="color: #2e7d32;">+4.9%</td>
+                    </tr>
+                    <tr>
+                        <td>毛利率</td>
+                        <td>30.16%</td>
+                        <td>~25-30%（推算）</td>
+                        <td><strong>~29.8%</strong></td>
+                        <td style="color: #c62828;">略有摊薄</td>
+                    </tr>
+                    <tr>
+                        <td>总股本</td>
+                        <td>1.047亿股</td>
+                        <td>+增发股份（49%对价）</td>
+                        <td><strong>~1.10-1.15亿股</strong>（估算）</td>
+                        <td>取决于增发价格</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin: 15px 0; padding: 12px; background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; font-size: 13px;">
+                <strong>💡 关键假设</strong>：
+                ① 厦芝精密2025年净利1127万为基数；
+                ② 49%股份支付部分，假设增发价格55-80元/股（停牌前股价参考），增发股份约300-600万股；
+                ③ AI PCB钻针量价齐升假设下，标的未来净利润有望提升至2000-3000万元/年。
+            </div>
+            
+            <!-- A.3.2 三种场景估值 -->
+            <h5 style="margin: 20px 0 10px;">三种场景估值对比</h5>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>场景</th>
+                        <th>假设条件</th>
+                        <th>采用PE</th>
+                        <th>并表后净利润</th>
+                        <th>预期市值(亿)</th>
+                        <th>预期股价(元)</th>
+                        <th>较当前涨幅</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #e8f5e9;">
+                        <td>🟢 <strong>乐观</strong></td>
+                        <td>AI PCB放量，标的净利达3000万，叠加主业15%增长</td>
+                        <td>60x（行业75分位）</td>
+                        <td>3.0亿</td>
+                        <td><strong>180</strong></td>
+                        <td><strong>~163</strong></td>
+                        <td style="color: #2e7d32;"><strong>+30.5%</strong></td>
+                    </tr>
+                    <tr style="background: #fff8e1;">
+                        <td>🟡 <strong>中性</strong></td>
+                        <td>标的净利提升至2000万，主业稳定增长</td>
+                        <td>45x（行业50分位）</td>
+                        <td>2.52亿</td>
+                        <td><strong>113.4</strong></td>
+                        <td><strong>~102</strong></td>
+                        <td style="color: #c62828;"><strong>-18.3%</strong></td>
+                    </tr>
+                    <tr style="background: #fce4ec;">
+                        <td>🔴 <strong>保守</strong></td>
+                        <td>标的维持现有水平，LED主业增长放缓</td>
+                        <td>25x（LED行业合理PE）</td>
+                        <td>2.42亿</td>
+                        <td><strong>60.5</strong></td>
+                        <td><strong>~55</strong></td>
+                        <td style="color: #c62828;"><strong>-55.9%</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- A.4 股价涨幅空间 -->
+            <h4 style="margin: 25px 0 15px; color: #1565c0; font-size: 16px;">A.4 股价涨幅空间总结</h4>
+            <div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div>
+                        <div style="font-size: 13px; color: #1565c0;">当前股价</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #0d47a1;">124.87元</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; color: #1565c0;">预期股价区间</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #0d47a1;">55 ~ 163元</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; color: #1565c0;">中性预期股价</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #e65100;">~102元（-18.3%）</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; color: #1565c0;">乐观预期涨幅</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #2e7d32;">+30.5%</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #90caf9; font-size: 13px; color: #1565c0;">
+                    <strong>⚠️ 核心结论</strong>：按中性估值（PE 45x），当前股价124.87元已高于并购后合理估值102元，存在约18%的下行空间。
+                    仅在乐观情景（AI PCB爆发+标的利润大幅增长+市场给予高PE）下，才有30%上行空间。
+                    <strong>当前价格已充分甚至过度反映并购预期。</strong>
+                </div>
+            </div>
+            
+            <!-- A.5 协同效应与风险 -->
+            <h4 style="margin: 25px 0 15px; color: #1565c0; font-size: 16px;">A.5 协同效应与风险评估</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>评估项</th>
+                        <th>判断</th>
+                        <th>影响</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>收入协同</td>
+                        <td>LED照明与PCB钻针客户群部分重叠（消费电子、汽车电子），可能交叉销售</td>
+                        <td><span class="status status-success">+1分</span></td>
+                    </tr>
+                    <tr>
+                        <td>技术协同</td>
+                        <td>厦芝30年钻针技术沉淀+AI PCB材料技术储备，填补民爆精密制造空白</td>
+                        <td><span class="status status-success">+2分</span></td>
+                    </tr>
+                    <tr>
+                        <td>行业趋势</td>
+                        <td>AI服务器PCB钻针量价齐升，英伟达Rubin系列M9材料拉动需求</td>
+                        <td><span class="status status-success">+1分</span></td>
+                    </tr>
+                    <tr>
+                        <td>成本协同</td>
+                        <td>LED与钻针生产工艺差异大，短期成本协同有限</td>
+                        <td><span class="status status-info">0分</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c62828;">整合风险</td>
+                        <td style="color: #c62828;">LED照明→PCB钻针，跨界跨度大，管理团队无精密制造经验</td>
+                        <td><span class="status status-danger">-2分</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c62828;">标的负债风险</td>
+                        <td style="color: #c62828;">厦芝精密资产负债率74.06%，远高于民爆的16%，并表后拖累整体财务</td>
+                        <td><span class="status status-danger">-1分</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c62828;">商誉风险</td>
+                        <td style="color: #c62828;">厦芝净资产仅3965万，若收购对价3-5亿，商誉可能达2.6-4.6亿（占民爆净资产10-18%）</td>
+                        <td><span class="status status-danger">-1分</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c62828;">EPS摊薄</td>
+                        <td style="color: #c62828;">49%发行股份支付将增发新股，短期摊薄EPS</td>
+                        <td><span class="status status-danger">-1分</span></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c62828;">审批不确定性</td>
+                        <td style="color: #c62828;">仍需4项审批（董事会→股东大会→深交所→证监会），任何环节受阻可能导致交易终止</td>
+                        <td><span class="status status-danger">-1分</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- A.6 评分调整 -->
+            <h4 style="margin: 25px 0 15px; color: #1565c0; font-size: 16px;">A.6 并购对综合评分的调整</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>调整项</th>
+                        <th>原维度</th>
+                        <th>调整</th>
+                        <th>理由</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>切入PCB钻针高成长赛道</td>
+                        <td>基本面</td>
+                        <td style="color: #2e7d32;"><strong>+1分</strong></td>
+                        <td>并购后营收+8.2%，打开第二成长曲线</td>
+                    </tr>
+                    <tr>
+                        <td>标的盈利贡献微薄</td>
+                        <td>基本面</td>
+                        <td style="color: #c62828;">-0分（已反映）</td>
+                        <td>标的净利仅1127万，对比民爆2.31亿占比仅4.9%</td>
+                    </tr>
+                    <tr>
+                        <td>商誉+跨界整合风险</td>
+                        <td>基本面</td>
+                        <td style="color: #c62828;">-0分（已反映在原评分）</td>
+                        <td>已在基本面4分中考虑</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- 并购分析结论 -->
+            <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-radius: 12px;">
+                <h4 style="color: #0d47a1; margin-bottom: 10px;">🏢 并购分析结论</h4>
+                <p style="color: #1565c0; line-height: 1.8;">
+                    民爆光电收购厦芝精密是一步<strong>战略性跨界布局</strong>，切入AI PCB钻针高成长赛道，长期逻辑成立。
+                    但当前标的公司体量小（营收1.35亿 vs 民爆16.41亿），盈利贡献微薄（净利仅1127万），且负债率高达74%。<br><br>
+                    <strong style="color: #c62828;">按中性估值（PE 45x），并表后合理市值约113.4亿，对应股价约102元，当前124.87元已溢价22%。</strong><br>
+                    市场已充分甚至过度定价并购预期。只有在AI PCB钻针爆发式增长且标的利润大幅提升的乐观情景下，才存在进一步上行空间。<br><br>
+                    <strong>建议等待：① 收购对价和业绩承诺披露；② 股价回调至合理估值区间；③ 标的业绩实际兑现。</strong>
+                </p>
+            </div>
+        </div>
+        <!-- ==================== 并购重组分析结束 ==================== -->
+        
+        <!-- 投资建议 -->
+        <div class="recommendation">
+            <h3>综合投资建议 · 综合评分：5.15/10（含并购调整）</h3>
+            <div class="verdict">🟡 观望等待 · 不建议追高</div>
+            <p style="opacity: 0.9; margin-bottom: 20px;">
+                民爆光电主业LED照明稳健但增长放缓，收购厦芝精密切入AI PCB钻针赛道是战略亮点。<br>
+                <strong>并购估值测算显示</strong>：中性情景下并表后合理市值约113.4亿（PE 45x），对应股价~102元。<br>
+                当前124.87元已溢价22%。仅乐观情景（AI PCB爆发+标的利润翻倍+PE给60x）对应163元，有30%上行空间。<br>
+                <strong>综合判断：当前价格已充分反映并购预期，叠加收购尚未落地、估值偏高、资金面分歧——不建议追高。</strong>
+            </p>
+            
+            <div class="price-targets">
+                <div class="price-target">
+                    <div class="label">💚 合理买入区间</div>
+                    <div class="value">55-75元</div>
+                    <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">保守PE 25x对应55元 / 中性PE 35x对应75元</div>
+                </div>
+                <div class="price-target">
+                    <div class="label">🎯 并购后中性目标价</div>
+                    <div class="value">102元</div>
+                    <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">并表后净利2.52亿 × PE 45x / 总股本1.1亿</div>
+                </div>
+                <div class="price-target">
+                    <div class="label">🚀 乐观目标价</div>
+                    <div class="value">163元</div>
+                    <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">AI PCB爆发，并表后净利3亿 × PE 60x</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 风险提示 -->
+        <div class="card">
+            <div class="risk-warning">
+                <h4>🚨 重大风险提示（本次风险等级：高）</h4>
+                <ul>
+                    <li>🔴 <strong>估值泡沫风险</strong>：PE ~64.6x，PB ~5.13x，远超LED照明行业合理估值（PE 15-25x）。并购估值中性情景合理价仅102元，保守情景仅55元</li>
+                    <li>🔴 <strong>业绩下滑风险</strong>：2025前三季度净利润同比-19.75%，Q3单季更是-27.91%，与暴涨的股价形成严重背离</li>
+                    <li>🔴 <strong>短期暴涨回撤风险</strong>：1个月涨幅200%+，2月初已出现过冲高后暴跌46%的先例（135→73元），追高可能面临同等回撤</li>
+                    <li>🔴 <strong>收购不确定性</strong>：厦芝精密收购尚需董事会再审、股东大会审议、深交所审核及证监会注册，任何环节受阻都可能导致股价崩跌</li>
+                    <li>🔴 <strong>标的质量风险</strong>：厦芝精密资产负债率74%、净利润仅1127万、净资产仅3965万，收购后商誉风险和整合风险较大</li>
+                    <li>🔴 <strong>公司自行降温</strong>：公司已多次发布股价异常波动公告，明确提示"股价显著偏离大盘指数和行业估值"</li>
+                    <li>🟡 <strong>小盘股操纵风险</strong>：流通市值约38亿，流通股仅2967万股，极易被游资操纵</li>
+                    <li>🟡 <strong>跨界整合风险</strong>：从LED照明跨界到PCB钻针，行业跨度大，管理团队无精密制造经验</li>
+                    <li>🟡 <strong>EPS摊薄风险</strong>：49%股份支付将增发新股，短期摊薄每股收益</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 公司简介 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-blue">🏢</div>
+                <h2>公司概况</h2>
+            </div>
+            <table class="data-table">
+                <tbody>
+                    <tr>
+                        <td>公司全称</td>
+                        <td>深圳民爆光电股份有限公司</td>
+                    </tr>
+                    <tr>
+                        <td>成立日期</td>
+                        <td>2010年3月5日</td>
+                    </tr>
+                    <tr>
+                        <td>上市日期</td>
+                        <td>2023年8月4日（深交所创业板）</td>
+                    </tr>
+                    <tr>
+                        <td>法人/董事长</td>
+                        <td>谢祖华</td>
+                    </tr>
+                    <tr>
+                        <td>员工人数</td>
+                        <td>两千余人</td>
+                    </tr>
+                    <tr>
+                        <td>主营业务</td>
+                        <td>LED照明产品研发、设计、制造、销售及服务（商业照明+工业照明）</td>
+                    </tr>
+                    <tr>
+                        <td>行业地位</td>
+                        <td>国家级专精特新"小巨人"企业，中国LED行业营收/专利50强，产品销往全球100+国家和地区</td>
+                    </tr>
+                    <tr>
+                        <td>业务模式</td>
+                        <td>以ODM方式为境外区域性品牌商和工程商提供差异化定制产品</td>
+                    </tr>
+                    <tr>
+                        <td>生产基地</td>
+                        <td>3大生产基地，标准化厂房面积超20万平方米，现代化生产线79条</td>
+                    </tr>
+                    <tr>
+                        <td>总股本/流通</td>
+                        <td>1.05亿股 / 2967万股（流通比例28.3%）</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 快捷链接 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-blue">🔗</div>
+                <h2>快捷链接</h2>
+            </div>
+            <div class="quick-links">
+                <a href="https://quote.eastmoney.com/sz301362.html" target="_blank" class="quick-link">
+                    📊 行情详情
+                </a>
+                <a href="https://data.eastmoney.com/zjlx/301362.html" target="_blank" class="quick-link">
+                    💰 资金流向
+                </a>
+                <a href="https://data.eastmoney.com/notices/stock/301362.html" target="_blank" class="quick-link">
+                    📋 公司公告
+                </a>
+                <a href="https://data.eastmoney.com/report/stock/301362.html" target="_blank" class="quick-link">
+                    📑 研究报告
+                </a>
+                <a href="https://guba.eastmoney.com/list,301362.html" target="_blank" class="quick-link">
+                    💬 股吧讨论
+                </a>
+                <a href="https://emweb.securities.eastmoney.com/pc_hsf10/pages/index.html?type=web&code=SZ301362" target="_blank" class="quick-link">
+                    📄 F10资料
+                </a>
+            </div>
+        </div>
+        
+        <!-- 数据来源状态 -->
+        <div class="card">
+            <div class="card-header">
+                <div class="icon icon-blue">📡</div>
+                <h2>数据来源状态</h2>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 12px 16px; background: var(--bg-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 600;">📊 数据完整度</span>
+                <span style="font-size: 18px; font-weight: bold; color: var(--primary-color);">90%</span>
+            </div>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>数据项</th>
+                        <th>来源</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>当前股价</td>
+                        <td>东方财富API</td>
+                        <td><span class="status status-success">✅ 成功</span></td>
+                    </tr>
+                    <tr>
+                        <td>涨跌幅</td>
+                        <td>东方财富API</td>
+                        <td><span class="status status-success">✅ 成功</span></td>
+                    </tr>
+                    <tr>
+                        <td>总市值/流通市值</td>
+                        <td>东方财富API</td>
+                        <td><span class="status status-success">✅ 成功</span></td>
+                    </tr>
+                    <tr>
+                        <td>PE/PB估值</td>
+                        <td>东方财富API</td>
+                        <td><span class="status status-success">✅ 成功</span></td>
+                    </tr>
+                    <tr>
+                        <td>主力净流入/主力净比</td>
+                        <td>东方财富</td>
+                        <td><span class="status status-success">✅ 成功（-3.07%）</span></td>
+                    </tr>
+                    <tr>
+                        <td>财报数据</td>
+                        <td>搜索引擎</td>
+                        <td><span class="status status-info">🔄 补充</span></td>
+                    </tr>
+                    <tr>
+                        <td>新闻公告</td>
+                        <td>搜索引擎</td>
+                        <td><span class="status status-info">🔄 补充</span></td>
+                    </tr>
+                    <tr>
+                        <td>机构评级</td>
+                        <td>搜索引擎</td>
+                        <td><span class="status status-info">🔄 补充</span></td>
+                    </tr>
+                    <tr>
+                        <td>并购标的（厦芝精密）财务数据</td>
+                        <td>搜索引擎</td>
+                        <td><span class="status status-info">🔄 补充</span></td>
+                    </tr>
+                    <tr>
+                        <td>可比公司PE（夏厦精密等）</td>
+                        <td>东方财富</td>
+                        <td><span class="status status-success">✅ 成功</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 15px; padding: 12px; background: #e8f0fe; border-radius: 8px; font-size: 13px; color: var(--text-secondary);">
+                <strong>状态说明：</strong>
+                <span class="status status-success" style="margin-left: 10px;">✅ 东财</span> 从东方财富网获取
+                <span class="status status-info" style="margin-left: 10px;">🔄 搜索</span> 通过搜索引擎补充
+                <span class="status status-danger" style="margin-left: 10px;">❌ 失败</span> 获取失败
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>报告生成时间：2026年3月5日（含并购估值分析）</p>
+            <p>数据来源：<a href="https://www.eastmoney.com" target="_blank">东方财富网</a></p>
+            <p style="margin-top: 15px; padding: 15px; background: #fce4ec; border-radius: 8px; color: #c62828;">
+                <strong>⚠️ 重要免责声明：</strong>本报告仅供参考，不构成任何投资建议。并购估值测算基于公开数据和假设，实际结果可能存在重大差异。该股近期涨幅巨大，公司已多次发布风险提示公告。<br>
+                股市有风险，投资需谨慎。追高炒作可能造成严重亏损，投资者应根据自身情况独立判断，自行承担投资风险。
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

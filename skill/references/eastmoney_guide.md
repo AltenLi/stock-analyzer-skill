@@ -305,3 +305,161 @@ https://quote.eastmoney.com/center/boardlist.html#industry_board
 2. **PB估值法**: 目标PB × 每股净资产
 3. **PEG估值法**: 合理PE = 净利润增长率 × 100
 4. **相对估值法**: 参考同行业公司估值水平
+
+---
+
+## 并购重组估值计算方法
+
+### 何时触发并购分析
+
+当分析过程中发现公司存在以下情况时，需要执行并购估值分析：
+- 公告拟收购/已收购某公司股权
+- 重大资产重组方案
+- 借壳上市/反向收购
+- 战略性股权投资（较大比例）
+
+### 并购标的数据获取
+
+**搜索策略**（使用 `web_search`）：
+
+```
+# 第一轮：获取并购方案概要
+"{收购方} 收购 {标的} 方案 公告"
+"{收购方} 并购 重组 对价 股权比例"
+
+# 第二轮：获取标的公司财务数据
+"{标的公司} 营业收入 净利润 毛利率 年报"
+"{标的公司} 财务数据 估值 行业"
+
+# 第三轮：获取行业PE参考
+"{标的所属行业} 行业平均PE A股 估值"
+"{标的所属行业} 上市公司 PE中位数"
+
+# 第四轮：获取并购进展
+"{收购方} {标的} 并购 审批 进展 最新"
+```
+
+### 核心估值计算公式
+
+#### 1. 并表后财务数据测算
+
+```python
+# 并表后营收
+post_merge_revenue = acquirer_revenue + target_revenue * acquisition_ratio
+
+# 并表后净利润
+post_merge_net_profit = acquirer_net_profit + target_net_profit * acquisition_ratio
+
+# 并表后毛利
+post_merge_gross_profit = acquirer_gross_profit + target_gross_profit * acquisition_ratio
+
+# 并表后毛利率
+post_merge_gross_margin = post_merge_gross_profit / post_merge_revenue
+
+# 并购后总股本（取决于支付方式）
+if payment_method == "现金":
+    post_merge_shares = acquirer_total_shares  # 现金收购不增发
+elif payment_method == "股份":
+    post_merge_shares = acquirer_total_shares + new_issued_shares
+elif payment_method == "混合":
+    post_merge_shares = acquirer_total_shares + new_issued_shares  # 仅股份部分增发
+
+# 并表后EPS
+post_merge_eps = post_merge_net_profit / post_merge_shares
+```
+
+#### 2. 三种场景估值
+
+```python
+# 获取标的行业PE分位数
+industry_pe_25 = ...   # 25分位（保守）
+industry_pe_50 = ...   # 50分位（中性）
+industry_pe_75 = ...   # 75分位（乐观）
+
+# 场景一：乐观
+optimistic_market_cap = post_merge_net_profit * industry_pe_75
+optimistic_price = optimistic_market_cap / post_merge_shares
+
+# 场景二：中性
+neutral_market_cap = post_merge_net_profit * industry_pe_50
+neutral_price = neutral_market_cap / post_merge_shares
+
+# 场景三：保守
+conservative_market_cap = post_merge_net_profit * industry_pe_25
+conservative_price = conservative_market_cap / post_merge_shares
+
+# 涨幅空间
+for scenario_price in [optimistic_price, neutral_price, conservative_price]:
+    upside = (scenario_price - current_price) / current_price * 100
+```
+
+#### 3. 业绩承诺估值法（如有）
+
+```python
+# 若标的公司有业绩承诺（通常为3年）
+promised_profits = [year1_profit, year2_profit, year3_profit]
+
+# 基于承诺利润的估值
+for year, profit in enumerate(promised_profits, 1):
+    yearly_post_merge_profit = acquirer_net_profit + profit * acquisition_ratio
+    yearly_market_cap = yearly_post_merge_profit * reasonable_pe
+    yearly_price = yearly_market_cap / post_merge_shares
+    yearly_upside = (yearly_price - current_price) / current_price * 100
+```
+
+#### 4. 商誉风险计算
+
+```python
+# 商誉 = 收购对价 - 标的可辨认净资产公允价值 × 收购比例
+goodwill = acquisition_price - target_net_assets * acquisition_ratio
+
+# 商誉/净资产 比率（风险指标）
+goodwill_ratio = goodwill / acquirer_net_assets * 100
+
+# 风险等级
+if goodwill_ratio > 80:
+    risk = "极高风险 - 商誉减值可能严重侵蚀利润"
+elif goodwill_ratio > 50:
+    risk = "高风险 - 需警惕商誉减值"
+elif goodwill_ratio > 30:
+    risk = "中等风险 - 商誉比例偏高"
+else:
+    risk = "可控风险 - 商誉比例合理"
+```
+
+### 并购分析核心指标速查
+
+| 指标 | 公式 | 正面信号 | 负面信号 |
+|------|------|---------|---------|
+| 营收增厚率 | (标的营收×比例)/收购方营收 | >20% 显著增厚 | <5% 影响有限 |
+| 利润增厚率 | (标的净利×比例)/收购方净利 | >30% 利润大幅提升 | <0 标的亏损 |
+| 毛利率变化 | 并表后毛利率 - 原毛利率 | 上升 → 业务质量改善 | 下降 → 低毛利业务拖累 |
+| EPS增厚/摊薄 | 并表后EPS vs 原EPS | EPS增厚 → 增值收购 | EPS摊薄 → 需更长回收期 |
+| PE合理性 | 收购PE vs 行业PE | 收购PE < 行业PE → 低价收购 | 收购PE > 行业PE×2 → 溢价过高 |
+| 商誉/净资产 | 商誉/收购方净资产 | <30% 可控 | >50% 高风险 |
+| 对价/市值 | 收购对价/收购方市值 | <20% 影响可控 | >50% 蛇吞象风险 |
+| 公告至今涨幅 | (当前价-公告日收盘价)/公告日收盘价 | <30% 市场反应温和 | >100% 严重过热，追高风险极大 |
+
+### 公告日股价获取方法
+
+获取并购公告首次发布日期对应的收盘价，用于计算"公告至今涨幅"：
+
+**方法一：东方财富K线历史数据**
+```
+# 个股日K数据页面
+https://quote.eastmoney.com/sz{股票代码}.html → 日K线图查找对应日期
+```
+
+**方法二：web_search 搜索**
+```
+"{股票名称} {公告日期} 收盘价"
+"{股票代码} {公告日期} 股价 历史行情"
+```
+
+**涨幅预警等级**：
+| 公告至今涨幅 | 预警等级 | 说明 |
+|-------------|---------|------|
+| <30% | 🟢 正常 | 市场温和反应 |
+| 30%-50% | 🟡 偏高 | 已有较大涨幅，注意风险 |
+| 50%-100% | 🟠 过热 | 可能过度炒作，追高风险大 |
+| >100% | 🔴 严重过热 | 极可能透支预期，追高极危险 |

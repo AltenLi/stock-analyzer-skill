@@ -20,6 +20,8 @@ yarn-error.log*
 *.tmp
 *.temp
 *.html
+# 保留示例报告
+!301362_民爆光电_分析报告_20260305.html
 
 # Package files (for local development)
 *.tgz
