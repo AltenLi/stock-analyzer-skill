@@ -636,6 +636,134 @@
             <p style="margin-top: 20px; color: var(--text-secondary); line-height: 1.8;">{技术面分析内容}</p>
         </div>
         
+        <!-- 异动监控（仅A股） -->
+        <div class="card" id="abnormal-monitor">
+            <div class="card-header">
+                <div class="icon" style="background: #fce4ec; color: #c62828;">⚡</div>
+                <h2>异动监控</h2>
+                <span class="status {异动预警状态}" style="margin-left: auto;">{异动预警等级}</span>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--text-secondary);">板块与异动规则</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                <div style="background: var(--bg-color); padding: 12px 16px; border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-secondary);">所属板块</div>
+                    <div style="font-weight: 600; margin-top: 4px;">{板块名称}</div>
+                </div>
+                <div style="background: var(--bg-color); padding: 12px 16px; border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-secondary);">异动阈值</div>
+                    <div style="font-weight: 600; margin-top: 4px;">±{异动阈值}%</div>
+                </div>
+                <div style="background: var(--bg-color); padding: 12px 16px; border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-secondary);">基准指数</div>
+                    <div style="font-weight: 600; margin-top: 4px;">{基准指数名称}</div>
+                </div>
+                <div style="background: var(--bg-color); padding: 12px 16px; border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-secondary);">ST标识</div>
+                    <div style="font-weight: 600; margin-top: 4px;">{ST标识}</div>
+                </div>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--text-secondary);">3日偏离值分析</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>指标</th>
+                        <th>数值</th>
+                        <th>说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>个股3日涨跌幅</td>
+                        <td>{个股3日涨跌幅}%</td>
+                        <td>最近3个交易日累计</td>
+                    </tr>
+                    <tr>
+                        <td>基准指数3日涨跌幅</td>
+                        <td>{指数3日涨跌幅}%</td>
+                        <td>同期基准指数</td>
+                    </tr>
+                    <tr style="font-weight: 600;">
+                        <td>3日偏离值</td>
+                        <td style="color: {偏离值颜色};">{3日偏离值}%</td>
+                        <td>个股涨跌幅 - 指数涨跌幅</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">异动触发进度</h4>
+            <div style="background: var(--bg-color); padding: 20px; border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: var(--text-secondary);">偏离值 / 阈值</span>
+                    <span style="font-weight: 600; font-size: 18px; color: {进度颜色};">{异动进度}%</span>
+                </div>
+                <div class="progress-bar" style="height: 12px; background: #e0e0e0;">
+                    <div class="progress-fill" style="width: {异动进度上限100}%; background: {进度条颜色}; height: 100%; border-radius: 4px;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                    <span>0% 安全</span>
+                    <span>40%</span>
+                    <span>60% 警戒</span>
+                    <span>80% 临近</span>
+                    <span>100% 触发</span>
+                </div>
+            </div>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">异动天花板估算</h4>
+            <div style="background: linear-gradient(135deg, #fff3e0, #ffe0b2); padding: 20px; border-radius: 12px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+                    <div>
+                        <div style="font-size: 12px; color: #bf360c;">剩余上行异动空间</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #e65100; margin-top: 4px;">{剩余空间}%</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #bf360c;">异动天花板价格</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #e65100; margin-top: 4px;">≈ {天花板价格} 元</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #bf360c;">距阈值距离</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #e65100; margin-top: 4px;">{阈值距离} pct</div>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 12px; color: #795548;">* 天花板为3日内理论最大空间的极端估算，实际指数也会波动</p>
+            </div>
+            
+            <h4 style="margin: 25px 0 15px; color: var(--text-secondary);">严重异动监测</h4>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>统计周期</th>
+                        <th>偏离值</th>
+                        <th>上限阈值</th>
+                        <th>下限阈值</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10日</td>
+                        <td>{10日偏离值}%</td>
+                        <td>+100%</td>
+                        <td>-50%</td>
+                        <td><span class="status {10日状态样式}">{10日状态}</span></td>
+                    </tr>
+                    <tr>
+                        <td>30日</td>
+                        <td>{30日偏离值}%</td>
+                        <td>+200%</td>
+                        <td>-70%</td>
+                        <td><span class="status {30日状态样式}">{30日状态}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; padding: 16px; background: #fff8e1; border-left: 4px solid #ffc107; border-radius: 0 8px 8px 0;">
+                <strong style="color: #f57f17;">⚠️ 监管提示：</strong>
+                <span style="color: #795548;">触发异常波动后公司须发布公告，严重异动将停牌核查并公布龙虎榜。无涨跌幅限制的股票（新股上市首日等）不纳入异动计算。</span>
+            </div>
+        </div>
+        
         <!-- 投资建议 -->
         <div class="recommendation">
             <h3>综合投资建议</h3>

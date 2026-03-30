@@ -349,6 +349,144 @@ N日涨幅 = (当前收盘价 / N个交易日前收盘价 - 1) × 100%
 
 ---
 
+## A股异动监控计算方法
+
+### 核心概念：偏离值
+
+异动判定的核心是**偏离值**，剔除大盘波动影响后衡量个股的真实异常程度。
+
+**计算公式**：
+```
+偏离值 = 个股区间涨跌幅 - 对应基准指数区间涨跌幅
+```
+
+### 基准指数对照表与K线API
+
+| 板块 | 基准指数 | secid（K线API用） | K线API URL |
+|------|---------|-------------------|-----------|
+| 上证主板（60xxxx） | 上证指数 | `1.000001` | `https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.000001&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&end=20500101&lmt=35` |
+| 深证主板（00xxxx） | 深证综指 | `0.399106` | 同上，secid改为`0.399106` |
+| 创业板（30xxxx） | 创业板综指 | `0.399102` | 同上，secid改为`0.399102` |
+| 科创板（688xxx） | 科创50指数 | `1.000688` | 同上，secid改为`1.000688` |
+| 北交所（8x/4x） | 北证50指数 | `0.899050` | 同上，secid改为`0.899050` |
+
+> **K线API返回数据格式**：f51=日期, f52=开盘价, f53=收盘价, f54=最高价, f55=最低价, f56=成交量, f57=成交额, f58=振幅, f59=涨跌幅, f60=涨跌额, f61=换手率
+
+### 异动阈值速查
+
+| 板块 | 普通异动阈值（3日） | ST股阈值 | 严重异动（10日） | 严重异动（30日） |
+|------|-------------------|---------|----------------|----------------|
+| 沪深主板 | ±20% | ±12% | +100% / -50% | +200% / -70% |
+| 创业板 | ±30% | N/A | +100% / -50% | +200% / -70% |
+| 科创板 | ±30% | N/A | +100% / -50% | +200% / -70% |
+| 北交所 | ±40% | N/A | +100% / -50% | +200% / -70% |
+
+### 计算示例
+
+**示例一：深市主板股票**
+```
+条件：
+- 股票3个交易日累计涨幅：22%
+- 同期深证综指涨幅：5%
+
+计算：
+偏离值 = 22% - 5% = 17%
+异动进度 = 17% / 20% × 100% = 85%（临近异动🟠）
+剩余空间 = 20% - 17% = 3个百分点
+```
+
+**示例二：同一股票，指数下跌**
+```
+条件：
+- 股票3个交易日累计涨幅：22%
+- 同期深证综指涨跌幅：-3%
+
+计算：
+偏离值 = 22% - (-3%) = 25%
+异动进度 = 25% / 20% × 100% = 125%（已触发异动🔴）
+```
+
+**示例三：创业板股票**
+```
+条件：
+- 股票3个交易日累计涨幅：28%
+- 同期创业板综指涨幅：2%
+
+计算：
+偏离值 = 28% - 2% = 26%
+异动进度 = 26% / 30% × 100% = 86.7%（临近异动🟠）
+剩余空间 = 30% - 26% = 4个百分点
+```
+
+### 沪深主板换手率异动判断
+
+```
+条件：
+1. 连续3个交易日日均换手率 / 前5个交易日日均换手率 ≥ 30倍
+2. 且连续3个交易日累计换手率 ≥ 20%
+
+数据获取：
+- 从K线API返回的f61字段获取换手率
+- 需要最近8个交易日数据（最近3日 + 前5日）
+```
+
+### 异动预警等级判断逻辑
+
+```python
+def get_alert_level(deviation_pct, threshold):
+    """计算异动预警等级"""
+    progress = abs(deviation_pct) / threshold * 100
+    
+    if progress >= 100:
+        return "🔴 已触发异动", "status-danger"
+    elif progress >= 80:
+        return "🟠 临近异动", "status-warning"
+    elif progress >= 60:
+        return "🟡 异动警戒", "status-warning"
+    elif progress >= 40:
+        return "🟢 轻度偏离", "status-success"
+    else:
+        return "⚪ 安全区间", "status-info"
+
+def get_board_info(stock_code, is_st=False):
+    """根据股票代码判断板块和阈值"""
+    if stock_code.startswith('60'):
+        board = "沪深主板（沪）"
+        threshold = 12 if is_st else 20
+        index_secid = "1.000001"
+        index_name = "上证指数"
+    elif stock_code.startswith('00'):
+        board = "沪深主板（深）"
+        threshold = 12 if is_st else 20
+        index_secid = "0.399106"
+        index_name = "深证综指"
+    elif stock_code.startswith('30'):
+        board = "创业板"
+        threshold = 30
+        index_secid = "0.399102"
+        index_name = "创业板综指"
+    elif stock_code.startswith('688'):
+        board = "科创板"
+        threshold = 30
+        index_secid = "1.000688"
+        index_name = "科创50"
+    elif stock_code.startswith('8') or stock_code.startswith('4'):
+        board = "北交所"
+        threshold = 40
+        index_secid = "0.899050"
+        index_name = "北证50"
+    
+    return board, threshold, index_secid, index_name
+
+def calc_ceiling_price(current_price, current_deviation, threshold):
+    """估算异动天花板价格"""
+    remaining = threshold - current_deviation  # 剩余空间（百分点）
+    ceiling = current_price * (1 + remaining / 100)
+    return remaining, ceiling
+```
+
+---
+
 ## 并购重组估值计算方法
 
 ### 何时触发并购分析
